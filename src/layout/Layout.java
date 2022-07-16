@@ -65,19 +65,23 @@ public class Layout {
 			
 			@Override
 			public void log_in() {
+				//prebacujemo se na prozor za registraciju
 				scene.setRoot(registrationLayout);
 				
 			}
 
 			@Override
 			public void sign_in(String email, String password) {
+				//prosledjujemo email i password za slanje serveru
 				userController.checkUser(email, password);
 				
 			}
 
 			@Override
 			public void signInChat(String email) {
+				//pravimo Usera sa tim emailom 
 				user = new User(email);
+				//uzimamo sve kontakte tog usera iz baze
 				userController.getContacts(user.getEmail());
 				//chatLayout.showAlert();
 				
@@ -89,12 +93,14 @@ public class Layout {
 			
 			@Override
 			public void register(String username, String password, String email) {
+				//poziva funciju iz userControlera za slanje podataka za registraciju
 				userController.register(email, username, password);
 				
 			}
 
 			@Override
 			public void back() {
+				//vracamo se na SignInLayout
 				scene.setRoot(signInLayout);
 				
 			}
@@ -161,16 +167,21 @@ public class Layout {
 			@Override
 			public void checkContact(String email) {
 				if (email.equals(user.getEmail())) {
+					//ukoliko smo uneli sebi kao kontakta odmah prikazuje gresku
 					contactListLayout.ErrorAdingContact();
 				}else
+					//u suprotnom proveravamo posotji li user sa tim emailom
 					userController.checkContact(email);
 				
 			}
 
 			@Override
 			public void startChat(String email) {
+				//prebacujemo se na chatLayout
 				scene.setRoot(chatLayout);
+				//postavljamo da je korisnik sa kojim trenutno komuniciramo izabrani kontakt
 				user.setContactEmail(email);
+				//saljemo ka serveru da smo zapoceli chat sa izabranim korisnikom
 				userController.addChat(email,user.getEmail());
 				
 			}
@@ -183,6 +194,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
+						//prosledjujemo status registerLayoutu gde ce se prikazati poruka da li je uspesna registracija
 						registrationLayout.statusRegistration(status);
 						
 					}
@@ -197,6 +209,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
+						//saljemo poruku o statusu signInLayoutu
 						signInLayout.statusSignIn(status);
 						
 					}
@@ -224,6 +237,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
+						//saljemo poruke u chatLayout
 						chatLayout.setMessages(messages,user.getEmail());
 						
 					}
@@ -238,6 +252,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
+						//saljemo ishod pretrage
 						contactListLayout.addContact(status);
 						
 					}
@@ -248,7 +263,9 @@ public class Layout {
 
 			@Override
 			public void getContacts(ArrayList<String> contacts) {
+				//prebacujemo se na ContactListLayout
 				scene.setRoot(contactListLayout);
+				//u listu ubacujemo kontakte
 				contactListLayout.addContacts(contacts);
 			}
 

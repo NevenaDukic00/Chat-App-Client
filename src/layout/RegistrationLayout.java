@@ -85,6 +85,7 @@ public class RegistrationLayout extends VBox{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				//kada kliknemo na register saljemo uneti username, password i email serveru preko registrationInterface
 				registrationInterface.register(username.getText(),password.getText(),email.getText());
 				
 			}
@@ -92,6 +93,7 @@ public class RegistrationLayout extends VBox{
 		back.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
+				//ukoliko smo kliknuli back vracamo se na signInLayout
 				registrationInterface.back();
 			}
 		});
@@ -99,13 +101,14 @@ public class RegistrationLayout extends VBox{
 	}
 
 	private void AlertStatus(String message) {
+		//prikazujemo odgovarajucu poruku
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setHeaderText("Status registration");
 		alert.setContentText(message);
 		alert.showAndWait();
 	}
 	public void statusRegistration(int status) {
-		System.out.println("USAO U PRED ALERT!");
+		//ukoliko je uspesna registracija, prikazace se prva poruka, u suprotnom druga
 		if (status==1) {
 			AlertStatus("You're account has been successfully created!");
 		}else {

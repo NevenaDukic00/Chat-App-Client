@@ -65,13 +65,16 @@ public class ContactListLayout extends VBox {
 		
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()){
+			//citamo email
 			contactEmail = result.get();
+			//saljemo da se proveri email
 			contactListInterface.checkContact(result.get());
 		   // chatInterface.sendEmailForChat(result.get());
 		}
 		
 	}
 	public void ErrorAdingContact() {
+		//ne mozemo uneti sami sebe kao kontakta
 		Alert a = new Alert(AlertType.WARNING);
 		a.setContentText("Can't add yourself as contact!");
 		a.showAndWait();
@@ -81,14 +84,17 @@ public class ContactListLayout extends VBox {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				//ako kliknemo na addContact iskace prozor za upisivanje emaila
 				showAlert();
 				
 			}
 		});
 		
 		table.setOnMouseClicked((MouseEvent event) -> {
+			//izabrali smo kontakta kome zelimo da posaljemo poruku
 	       System.out.println("KLIKNUO JE NA:" + table.getSelectionModel().getSelectedItem().toString());
 	       Contact contact = (Contact) table.getSelectionModel().getSelectedItem();
+	       //zapocinjemo chat sa tim kontaktom
 	       contactListInterface.startChat(contact.getEmail());
 	    });
 	}	
@@ -99,26 +105,30 @@ public class ContactListLayout extends VBox {
 		int k = 0;
 		while (k<length) {
 			System.out.println("Contact je: " + contactsList.get(k));
+			//ubacujemo konakte u ObservableList
 			contacts.add(new Contact(contactsList.get(k), null));
 			k++;
 		}
 	}
 	private void showAlert1(String message) {
+		//prikazivanje poruke
 		Alert a = new Alert(AlertType.INFORMATION);
 		a.setContentText(message);
 		a.showAndWait();
 	}
 	private void addContactToList() {
-		System.out.println("Dodao je userra!");
+		//dodavanje kontakta u listu
+		//ovo username sto saljem null moze da se izbaci, mislim da ne sluzi nicemu posle
 		contacts.add(new Contact(contactEmail,null));
 		
 	}
 	public void addContact(int status) {
+		//ukoliko user sa  unetim emailom ne postoji, prikazuje se poruka, u suprotnom dodajemo kontakt u listu kontakta
 		if (status==0) {
 			showAlert1("User with entered email does not exsist!");
 		}else {
 			addContactToList();
-			showAlert1("NASAO USERA!");
+			showAlert1("USER IS FOUND!");
 		}
 		
 	}

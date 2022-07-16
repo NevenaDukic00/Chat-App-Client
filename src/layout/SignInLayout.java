@@ -76,25 +76,30 @@ public class SignInLayout extends VBox{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				//zelimo da se registrujemo, pa saejmo signal da zelimo da predjemo na stranu za registraciju
 				signInInterface.log_in();
 				
 			}
 		});
 		
+		//zelimo da se prijavimo
 		sign_in.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
+				//prosledjujemo email i password
 				signInInterface.sign_in(email.getText(), password.getText());				
 			}
 		});
 	}
 
 	private void AlertSignIn() {
+		//prikazujemo poruku o neispravnom emailu
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setContentText("Email or password is not correct!");
 		alert.showAndWait();
 	}
 	public void statusSignIn(int status) {
+		//prikazujemo Alert ukoliko je neispravan email ili password, u suprotnom prvo trazimo sve kontakte od datog usera, a onda idemo na ContactListLayout
 		if (status==1) {
 			signInInterface.signInChat(email.getText());
 		}else {

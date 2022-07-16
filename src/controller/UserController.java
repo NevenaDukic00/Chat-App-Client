@@ -69,6 +69,7 @@ public class UserController extends Thread {
 	}
 	public void register(String email,String username,String password) {
 		try {
+			//saljemo podatke za registraciju serveru
 			outputStream.writeInt(1);
 			outputStream.writeUTF(email);
 			outputStream.writeUTF(username);
@@ -128,7 +129,7 @@ public class UserController extends Thread {
 	public void checkUser(String email,String password) {
 		
 		try {
-			System.out.println("SALJE SE SERVERU ZA SIGN IN!");
+			//slanje serveru
 			outputStream.writeInt(2);
 			outputStream.writeUTF(email);
 			outputStream.writeUTF(password);
@@ -142,7 +143,7 @@ public class UserController extends Thread {
 	public void checkContact(String email) {
 		
 		try {
-			
+			//saljemo email za proveru
 			outputStream.writeInt(5);
 			outputStream.writeUTF(email);
 			outputStream.flush();
@@ -168,6 +169,7 @@ public class UserController extends Thread {
 
 	public void addChat(String email,String my_email) {
 		try {
+			//saljemo serveru da smo zapoceli chat
 			outputStream.writeInt(3);
 			outputStream.writeUTF(email);
 			outputStream.writeUTF(my_email);
@@ -180,6 +182,7 @@ public class UserController extends Thread {
 	
 	public void getContacts(String email) {
 		try {
+			//saljemo zahtev za svim kontaktima usera
 			outputStream.writeInt(6);
 			outputStream.writeUTF(email);
 			outputStream.flush();
@@ -212,23 +215,25 @@ public class UserController extends Thread {
 				System.out.println("Broj poruke je: " + message);
 				switch (message) {
 				case 1:
+					//posto smo primili 1, znaci da dobija odgovor vezan za registraciju
 					int status = inputStream.readInt();
-					System.out.println("STATUS JE: " + status);
 					userControllerInterface.statusRegister(status);
 					break;
 				case 2:
-					System.out.println("usao u 2222222222222222");
+					//prima poruku o uspesnosti logovanja
 					int status1 = inputStream.readInt();
 					int port = inputStream.readInt();
-					System.out.println("STATUS SUGN IN JE: " + status1);
+					//salje poruku o uspesnosti logovanja
 					userControllerInterface.sign_inStatus(status1);
+					//ovde pravi UserControllerSeverPeer kao ServerSocket koji ceka poziv drugogo socketa
 					System.out.println("BROJ PORTA OVOGA JE : " + port);
 					new UserControllerServerPeer(port).start();
 					break;
 				case 3:
-					String [] messages = new String[200];
+					String [] messages = new String[Integer.MAX_VALUE];
 					System.out.println("USAO U DOBIJANJE PORUKA!");
 					int k = 0;
+					//citamo poruke
 					for (int i = 0; i <200; i++) {
 						String text = inputStream.readUTF();
 						if (text.equals("end of messages")) {
@@ -240,6 +245,7 @@ public class UserController extends Thread {
 					}
 					
 					System.out.println("DOSAO DOVDEEE!");
+					//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
 					userControllerInterface.getMessages(messages);
 					break;
 				case 4:
@@ -248,12 +254,12 @@ public class UserController extends Thread {
 					userControllerInterface.showMessage(text);
 					break;
 				case 5:
-					System.out.println("USAO U 55555");
+					//primamo odgovor da li postoji korisnik sa trazenim mailom
 					int s = inputStream.readInt();
 					userControllerInterface.statusEmail(s);
 					break;
 				case 6:
-					System.out.println("UZIMA CONTACTE!!!!!!!!!!");
+					//uzimamo kontakte
 					ArrayList<String>contacts = new ArrayList<>();
 					int length = inputStream.readInt();
 					System.out.println("Broj contacta je: " + length);

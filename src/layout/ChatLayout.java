@@ -1,7 +1,5 @@
 package layout;
 
-
-
 import java.util.Optional;
 
 import interfaces.ChatInterface;
@@ -39,6 +37,7 @@ public class ChatLayout extends VBox {
 		init();
 	}
 	
+
 	private void init() {
 		initComponents();
 		initLayout();
@@ -156,6 +155,7 @@ public class ChatLayout extends VBox {
 		chat.clear();
 		message.clear();
 		System.out.println("DOSAO DA UPISE!");
+		//citamo poruke, posto su u formatu user:poruka razdvajamo preko substring
 		for (int i = 0; i < messages.length; i++) {
 			if (messages[i]==null) {
 				break;
@@ -169,6 +169,7 @@ public class ChatLayout extends VBox {
 				chat.appendText("Contact: ");
 			}
 			
+			//poruku dodajemo u chat
 			chat.appendText(messages[i].substring(position+1));
 			chat.appendText("\n");
 			
