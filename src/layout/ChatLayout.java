@@ -78,7 +78,7 @@ public class ChatLayout extends VBox {
 		
 	}
 	public void showMessage(String message) {
-		
+		//prikazujemo poruku koju smo primili
 		chat.appendText("Contact: " + message);
 		chat.appendText("\n");
 	}
@@ -88,17 +88,17 @@ public class ChatLayout extends VBox {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				
+				//ukoliko je korisinik kliknuo send, prvo uziammo poruku iz message TextFielda i upisujemo u TextArea
 				chat.appendText("Me: " + message.getText());
 				chat.appendText("\n");
-				
+				//zatim saljemo tu poruku ka UserControlleru preko chatInterface
 				chatInterface.sendMessage(message.getText());
 				message.clear();
 				
 			}
 		});
 		back.setOnAction(new EventHandler<ActionEvent>() {
-
+			//vracamo se na ContactChatLayout
 			@Override
 			public void handle(ActionEvent arg0) {
 				chatInterface.backToContacts();

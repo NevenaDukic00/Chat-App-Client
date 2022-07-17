@@ -154,6 +154,7 @@ public class UserController extends Thread {
 	}
 	public void sendMessage(String message,String email1,String email2) {
 		try {
+			//saljemo serveru ko je napisao, kome i poruku
 			System.out.println("PORUKA PRE SLANJA JE: " + message);
 			outputStream.writeInt(4);
 			outputStream.writeUTF(email1);
@@ -249,8 +250,10 @@ public class UserController extends Thread {
 					userControllerInterface.getMessages(messages);
 					break;
 				case 4:
+					//primamo poruku od servera
 					String text = inputStream.readUTF();
 					System.out.println("Text je: " + text);
+					//saljemo poruku ka ChatLayoutu
 					userControllerInterface.showMessage(text);
 					break;
 				case 5:

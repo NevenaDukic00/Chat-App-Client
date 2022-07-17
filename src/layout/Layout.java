@@ -111,6 +111,7 @@ public class Layout {
 			
 			@Override
 			public void sendMessage(String message) {
+				//saljemo poruku, ko je napisao i kome
 				userController.sendMessage(message,user.getEmail(),user.getContactEmail());
 				
 			}
@@ -125,6 +126,7 @@ public class Layout {
 
 			@Override
 			public void backToContacts() {
+				//vracamo se na ContactListlayout
 				scene.setRoot(contactListLayout);
 				
 			}
@@ -223,6 +225,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
+						//prosledjuejmo poruku
 						chatLayout.showMessage(message);
 						
 					}
