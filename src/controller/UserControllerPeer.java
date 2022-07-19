@@ -45,6 +45,7 @@ public class UserControllerPeer extends Thread{
 	}
 	public void sendMessage(String message) {
 		try {
+			//saljmo poruku
 			dataOutputStream.writeUTF(message);
 			dataOutputStream.flush();
 		} catch (IOException e) {
@@ -59,8 +60,9 @@ public class UserControllerPeer extends Thread{
 		while (true) {
 			int message;
 			try {
-			
+				//primamo poruku
 				String message1 = dataInputStream.readUTF();
+				//prikaz te poruke
 				System.out.println("PRIMLJENA PORUKA JE: " + message1);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block

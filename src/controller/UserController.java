@@ -199,6 +199,7 @@ public class UserController extends Thread {
 			
 	public void getPort(String email) {
 		try {
+			//saljemo poruku serveru za port od korisnika kome saljemo poruku
 			outputStream.writeInt(7);
 			outputStream.writeUTF(email);
 			outputStream.flush();
@@ -226,7 +227,7 @@ public class UserController extends Thread {
 					int port = inputStream.readInt();
 					//salje poruku o uspesnosti logovanja
 					userControllerInterface.sign_inStatus(status1);
-					//ovde pravi UserControllerSeverPeer kao ServerSocket koji ceka poziv drugogo socketa
+					//cim se se ulogovali, pokrecemo  UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
 					System.out.println("BROJ PORTA OVOGA JE : " + port);
 					new UserControllerServerPeer(port).start();
 					break;
@@ -274,6 +275,7 @@ public class UserController extends Thread {
 					userControllerInterface.getContacts(contacts);
 					break;
 				case 7:
+					//primamo port korisnika za peer
 					int portNum = inputStream.readInt();
 					System.out.println("BROJ PORTA DRUGOGO PEERA: " + portNum);
 					userControllerInterface.sendPort(portNum);

@@ -133,6 +133,7 @@ public class Layout {
 
 			@Override
 			public void callUser() {
+				//trazimo port klijenta kome saljemo poruku preko peera
 				userController.getPort(user.getContactEmail());
 				
 				
@@ -153,7 +154,7 @@ public class Layout {
 			@Override
 			public void sendPeerMessage(String message) {
 				System.out.println("MOJ EMAIL SA KOGA SE SALJE JE: " + user.getEmail());
-				
+				//saljemo preko peera
 				userControllerPeer.sendMessage(message);
 				
 			}
@@ -276,9 +277,11 @@ public class Layout {
 			public void sendPort(int port) {
 				try {
 					System.out.println("PRAVI SOCKET KA: " + port);
+					//pravimo socket za komunikaciju preko peera, na portu na kome se nalazi korisnik sa kojim komuniciramo
 					userControllerPeer = new UserControllerPeer(new Socket("localhost", port));
+					
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
-						
+						//ovaj deo mi ne radi nesto, mislila sam da se kao kada ti stigne poruka preko peera da ti iskoci Alert ali ne radi
 						@Override
 						public void respondToPeer(String message) {
 							chatLayout.respondToPeer(message);

@@ -109,14 +109,18 @@ public class ChatLayout extends VBox {
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				//ovo je proba peera sa slanjem poruka
 				chatInterface.callUser();
 				TextInputDialog text = new TextInputDialog();
 				text.setContentText("PROBA PEER");
 				Optional<String> result = text.showAndWait();
+				
+				
+				//ucitamo poruk usa Text input Dialoga
 				if (result.isPresent()){
 				    System.out.println("PORUKA KOJA SE SALJE JE:  " + result.get());
 				}
-				
+				//saljemo poruku
 				chatInterface.sendPeerMessage(result.toString());
 			}
 			
