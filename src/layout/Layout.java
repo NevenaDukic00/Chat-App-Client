@@ -116,13 +116,7 @@ public class Layout {
 				
 			}
 
-			@Override
-			public void sendEmailForChat(String email) {
-				//user.setContactEmail(email);f
-				//userController.addChat(email,user.getEmail());
-				
-				
-			}
+			
 
 			@Override
 			public void backToContacts() {
@@ -242,6 +236,7 @@ public class Layout {
 					@Override
 					public void run() {
 						//saljemo poruke u chatLayout
+						System.out.println("USAO DA SALJE PORUKU ");
 						chatLayout.setMessages(messages,user.getEmail());
 						
 					}

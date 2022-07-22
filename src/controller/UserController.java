@@ -232,7 +232,8 @@ public class UserController extends Thread {
 					new UserControllerServerPeer(port).start();
 					break;
 				case 3:
-					String [] messages = new String[Integer.MAX_VALUE];
+					//ovde sam stavila kao max broj poruka 300
+					String [] messages = new String[300];
 					System.out.println("USAO U DOBIJANJE PORUKA!");
 					int k = 0;
 					//citamo poruke
