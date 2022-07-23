@@ -14,6 +14,9 @@ public class UserControllerServerPeer extends Thread{
 	public UserControllerServerPeer(int a) {
 		
 		try {
+			//ovo da preko LAN-a trazi drugog korisnika
+			//serverSocket = new ServerSocket(a, ne znam bas sta je ovo, IP adresa racunara);
+			
 			serverSocket = new ServerSocket(a);
 			port = a;
 		} catch (IOException e) {

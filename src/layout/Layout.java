@@ -273,6 +273,9 @@ public class Layout {
 				try {
 					System.out.println("PRAVI SOCKET KA: " + port);
 					//pravimo socket za komunikaciju preko peera, na portu na kome se nalazi korisnik sa kojim komuniciramo
+					
+					//ovde kod new Socket mislim da treba new Socket() -> new Socket(IP adresa racunara koga zovemo, port)
+					
 					userControllerPeer = new UserControllerPeer(new Socket("localhost", port));
 					
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {

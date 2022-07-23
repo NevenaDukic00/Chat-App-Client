@@ -101,6 +101,7 @@ public class SignInLayout extends VBox{
 	public void statusSignIn(int status) {
 		//prikazujemo Alert ukoliko je neispravan email ili password, u suprotnom prvo trazimo sve kontakte od datog usera, a onda idemo na ContactListLayout
 		if (status==1) {
+			System.out.println("JA SAM: " + email.getText());
 			signInInterface.signInChat(email.getText());
 		}else {
 			AlertSignIn();

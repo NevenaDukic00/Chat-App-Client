@@ -50,6 +50,9 @@ public class UserController extends Thread {
 	}
 	public UserController() {
 		try {
+			//ovo valjda treba da se poveze saserverom u LAN-u
+			//socket = new Socket(IPracunara gde je server, 8888);
+			
 			socket = new Socket("localhost", 8888);
 			initStreams();
 		} catch (UnknownHostException e) {
