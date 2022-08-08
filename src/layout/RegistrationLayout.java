@@ -85,6 +85,12 @@ public class RegistrationLayout extends VBox{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				if(username.getLength()==0 || password.getLength()==0 || email.getLength()==0) {
+					Alert alert = new Alert(AlertType.WARNING);
+					alert.setHeaderText("Error!");
+					alert.setContentText("All the fields have to be filled!");
+					alert.showAndWait();
+				}else
 				//kada kliknemo na register saljemo uneti username, password i email serveru preko registrationInterface
 				registrationInterface.register(username.getText(),password.getText(),email.getText());
 				
@@ -94,6 +100,7 @@ public class RegistrationLayout extends VBox{
 			@Override
 			public void handle(ActionEvent arg0) {
 				//ukoliko smo kliknuli back vracamo se na signInLayout
+				clearRegistration();
 				registrationInterface.back();
 			}
 		});
@@ -107,10 +114,16 @@ public class RegistrationLayout extends VBox{
 		alert.setContentText(message);
 		alert.showAndWait();
 	}
+	public void clearRegistration() {
+		username.setText("");
+		password.setText("");
+		email.setText("");
+	}
 	public void statusRegistration(int status) {
 		//ukoliko je uspesna registracija, prikazace se prva poruka, u suprotnom druga
 		if (status==1) {
 			AlertStatus("You're account has been successfully created!");
+			clearRegistration();
 		}else {
 			AlertStatus("The user with the entered email already exsist!");
 		}

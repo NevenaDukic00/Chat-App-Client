@@ -44,7 +44,7 @@ public class SignInLayout extends VBox{
 		email = new TextField();
 		password = new PasswordField();
 		sign_in = new Button("SIGN IN");
-		log_in = new Button("LOG IN");
+		log_in = new Button("REGISTRATION");
 		gridPane = new GridPane();
 	}
 	private void initLayout() {
