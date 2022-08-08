@@ -1,6 +1,7 @@
 package layout;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -17,8 +18,10 @@ import interfaces.UserControllerInterface;
 import interfaces.UserControllerPeerInterface;
 import interfaces.UserControllerServerPeerInterface;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Layout {
 
@@ -41,9 +44,9 @@ public class Layout {
 	
 	private void init() {
 		initComponents();
+		initStageAction();
 		userController = new UserController();
 		userController.start();
-		
 		initAction();
 	}
 	private void initComponents() {
@@ -59,6 +62,21 @@ public class Layout {
 		
 	}
 	
+	private void initStageAction() {
+		
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			
+			@Override
+			public void handle(WindowEvent arg0) {
+				if(userController!=null) {
+					userController.logOff();
+				}else {
+					Platform.exit();
+			
+				}
+			}
+		});
+	}
 	private void initAction() {
 		
 		signInLayout.setSignInInterface(new SignInInterface() {
@@ -135,7 +153,7 @@ public class Layout {
 
 			@Override
 			public void endCall() {
-				userController.endCall();
+				
 				
 			}
 
@@ -187,6 +205,7 @@ public class Layout {
 			
 			@Override
 			public void statusRegister(int status) {
+				//Platfrom runLater koristimo kada zelimo na guiju nesto da se promeni, a na osnovu nekog drugogo Threada u ovom slucaju userControllera
 				Platform.runLater(new Runnable() {
 					
 					@Override
@@ -230,7 +249,7 @@ public class Layout {
 			}
 
 			@Override
-			public void getMessages(String[] messages) {
+			public void getMessages(ArrayList<String> messages) {
 				Platform.runLater(new Runnable() {
 					
 					@Override
@@ -262,21 +281,29 @@ public class Layout {
 
 			@Override
 			public void getContacts(ArrayList<String> contacts) {
-				//prebacujemo se na ContactListLayout
-				scene.setRoot(contactListLayout);
-				//u listu ubacujemo kontakte
-				contactListLayout.addContacts(contacts);
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						//prebacujemo se na ContactListLayout
+						scene.setRoot(contactListLayout);
+						//u listu ubacujemo kontakte
+						contactListLayout.addContacts(contacts);
+						
+					}
+				});
+				
 			}
 
 			@Override
-			public void sendPort(int port) {
+			public void sendPort(int port,String ip) {
 				try {
 					System.out.println("PRAVI SOCKET KA: " + port);
 					//pravimo socket za komunikaciju preko peera, na portu na kome se nalazi korisnik sa kojim komuniciramo
 					
 					//ovde kod new Socket mislim da treba new Socket() -> new Socket(IP adresa racunara koga zovemo, port)
 					
-					userControllerPeer = new UserControllerPeer(new Socket("localhost", port));
+					userControllerPeer = new UserControllerPeer(new Socket(ip, port));
 					
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
 						//ovaj deo mi ne radi nesto, mislila sam da se kao kada ti stigne poruka preko peera da ti iskoci Alert ali ne radi
@@ -295,6 +322,34 @@ public class Layout {
 				}
 				
 			}
+
+			@Override
+			public void errorPeer() {
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						chatLayout.showErrorPeer();
+						
+					}
+				});
+				
+			}
+
+			@Override
+			public void foundPeer() {
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						chatLayout.sendMessagetoPeer();
+						
+					}
+				});
+				
+			}
+
+			
 		});
 		
 		

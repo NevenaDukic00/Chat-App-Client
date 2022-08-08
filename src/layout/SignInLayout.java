@@ -2,6 +2,8 @@ package layout;
 
 
 
+import java.util.Optional;
+
 import interfaces.SignInInterface;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -106,6 +109,12 @@ public class SignInLayout extends VBox{
 		}else {
 			AlertSignIn();
 		}
+	}
+	public void errorServer() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setHeaderText("Greska!");
+		alert.setContentText("Server nije povezan!");
+		Optional<ButtonType> result = alert.showAndWait();
 	}
 	public void setSignInInterface(SignInInterface signInInterface) {
 		this.signInInterface = signInInterface;

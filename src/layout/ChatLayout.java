@@ -1,6 +1,16 @@
 package layout;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Optional;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.TargetDataLine;
 
 import interfaces.ChatInterface;
 import javafx.event.ActionEvent;
@@ -31,6 +41,10 @@ public class ChatLayout extends VBox {
 	private Button back;
 	private Button call;
 	private Button endcall;
+	
+	private AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
+	
+	private TargetDataLine targetDataLine;	
 	
 	public ChatLayout(int dim) {
 		setSpacing(dim);
@@ -111,17 +125,8 @@ public class ChatLayout extends VBox {
 			public void handle(ActionEvent arg0) {
 				//ovo je proba peera sa slanjem poruka
 				chatInterface.callUser();
-				TextInputDialog text = new TextInputDialog();
-				text.setContentText("PROBA PEER");
-				Optional<String> result = text.showAndWait();
 				
 				
-				//ucitamo poruk usa Text input Dialoga
-				if (result.isPresent()){
-				    System.out.println("PORUKA KOJA SE SALJE JE:  " + result.get());
-				}
-				//saljemo poruku
-				chatInterface.sendPeerMessage(result.toString());
 			}
 			
 			
@@ -130,12 +135,19 @@ public class ChatLayout extends VBox {
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				endCall();
 				chatInterface.endCall();
 				
 			}
 		});
 	}
 
+	public void endCall() {
+		targetDataLine.stop();
+		targetDataLine.close();
+		System.out.println("Snimljenooooo!");
+	}
+	
 	public String PeerCallScreen(String message) {
 		System.out.println("USAO DA MU SE PRIKAZE EKRAN!");
 		TextInputDialog text = new TextInputDialog();
@@ -155,29 +167,48 @@ public class ChatLayout extends VBox {
 	public void setChatInterface(ChatInterface chatInterface) {
 		this.chatInterface = chatInterface;
 	}
-	public void setMessages(String messages[],String email) {
+	public void setMessages(ArrayList<String> messages,String email) {
 		chat.clear();
 		message.clear();
 		System.out.println("DOSAO DA UPISE!");
 		//citamo poruke, posto su u formatu user:poruka razdvajamo preko substring
-		for (int i = 0; i < messages.length; i++) {
-			if (messages[i]==null) {
-				break;
-			}
-			int position = messages[i].indexOf(";");
-			String user = messages[i].substring(0, position);
+		for (int i = 0; i < messages.size(); i++) {
+			int position = messages.get(i).indexOf(";");
+			int position1 = messages.get(i).indexOf("#") +1;
+			String user = messages.get(i).substring(0, position);
 			System.out.println("Email je: " + user);
 			if (user.equals(email)) {
-				chat.appendText("Me: ");
+				chat.appendText("ME: ");
 			}else {
-				chat.appendText("Contact: ");
+				
+				String user1 = messages.get(i).substring(position1);
+				chat.appendText(user1.toUpperCase() + ": ");
 			}
 			
 			//poruku dodajemo u chat
-			chat.appendText(messages[i].substring(position+1));
+			chat.appendText(messages.get(i).substring(position+1,position1-1));
 			chat.appendText("\n");
 			
 		}
+	}
+	
+	public void showErrorPeer() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setContentText("Contact is not active!");
+		alert.showAndWait();
+	}
+	public void sendMessagetoPeer() {
+		TextInputDialog text = new TextInputDialog();
+		text.setContentText("PROBA PEER");
+		Optional<String> result = text.showAndWait();
+		
+		
+		//ucitamo poruk usa Text input Dialoga
+		if (result.isPresent()){
+		    System.out.println("PORUKA KOJA SE SALJE JE:  " + result.get());
+		}
+		//saljemo poruku
+		chatInterface.sendPeerMessage(result.toString());
 	}
 	
 }

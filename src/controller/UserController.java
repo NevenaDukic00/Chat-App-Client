@@ -5,13 +5,14 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -38,12 +39,6 @@ public class UserController extends Thread {
 	
 	private UserControllerInterface userControllerInterface;
 	
-	private AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
-	
-	private DataLine.Info dateInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
-	
-	
-	private TargetDataLine targetDataLine;
 	
 	public void setUserControllerInterface(UserControllerInterface userControllerInterface) {
 		this.userControllerInterface = userControllerInterface;
@@ -53,13 +48,15 @@ public class UserController extends Thread {
 			//ovo valjda treba da se poveze saserverom u LAN-u
 			//socket = new Socket(IPracunara gde je server, 8888);
 			
-			socket = new Socket("localhost", 8888);
+			socket = new Socket("192.168.0.17", 8888);
+			//System.out.println("IP je: " + InetAddress.getLocalHost());
 			initStreams();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			//System.out.println("USAO OVDE");
+			//Platform.exit();
 			e.printStackTrace();
 		}
 		
@@ -86,48 +83,9 @@ public class UserController extends Thread {
 		
 	}
 	
-	public void getSound() {
-		
-		//ServerSocket serverSocket;
-		try {
-			targetDataLine =  (TargetDataLine)AudioSystem.getLine(dateInfo);
-			if(!AudioSystem.isLineSupported(dateInfo)) {
-				System.out.println("Not supported!");
-			}
-			targetDataLine.open();
-			targetDataLine.start();
-			AudioInputStream record = new AudioInputStream(targetDataLine);
-			File file = new File("record.wav");
-			try {
-				AudioSystem.write(record, AudioFileFormat.Type.WAVE, file);
-				sendVoice(file);
-				
-			}catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-			
-		} catch (LineUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
-		
-		
-	}
-	public void sendVoice(File file) {
-		
-		
-		
-			
-	        
-	        
-	}
-	public void endCall() {
-		targetDataLine.stop();
-		targetDataLine.close();
-		System.out.println("Snimljenooooo!");
-	}
+	
+	
+	
 	
 	public void checkUser(String email,String password) {
 		
@@ -136,6 +94,7 @@ public class UserController extends Thread {
 			outputStream.writeInt(2);
 			outputStream.writeUTF(email);
 			outputStream.writeUTF(password);
+			outputStream.writeUTF(InetAddress.getLocalHost().toString());
 			outputStream.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -212,6 +171,15 @@ public class UserController extends Thread {
 		}
 		
 	}
+	public void logOff() {
+		try {
+			outputStream.writeInt(8);
+			outputStream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public void run() {
 		while (true) {
@@ -227,28 +195,32 @@ public class UserController extends Thread {
 				case 2:
 					//prima poruku o uspesnosti logovanja
 					int status1 = inputStream.readInt();
-					int port = inputStream.readInt();
+					if(status1==1) {
+						//ako je uspesno uzima broj porta
+						int port = inputStream.readInt();
+						//cim se se ulogovali, pokrecemo  UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
+						System.out.println("BROJ PORTA OVOGA JE : " + port);
+						new UserControllerServerPeer(port).start();
+					}
 					//salje poruku o uspesnosti logovanja
 					userControllerInterface.sign_inStatus(status1);
-					//cim se se ulogovali, pokrecemo  UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
-					System.out.println("BROJ PORTA OVOGA JE : " + port);
-					new UserControllerServerPeer(port).start();
 					break;
 				case 3:
 					//ovde sam stavila kao max broj poruka 300
-					String [] messages = new String[300];
+					ArrayList<String> messages = new ArrayList<>();
 					System.out.println("USAO U DOBIJANJE PORUKA!");
 					int k = 0;
 					//citamo poruke
-					for (int i = 0; i <200; i++) {
+					while(true) {
 						String text = inputStream.readUTF();
 						if (text.equals("end of messages")) {
 							break;
 						}
 						System.out.println("Poruka: " + text);
-						messages[k++]= text;
+						messages.add(text);
 						
 					}
+					
 					
 					System.out.println("DOSAO DOVDEEE!");
 					//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
@@ -280,10 +252,30 @@ public class UserController extends Thread {
 					break;
 				case 7:
 					//primamo port korisnika za peer
-					int portNum = inputStream.readInt();
-					System.out.println("BROJ PORTA DRUGOGO PEERA: " + portNum);
-					userControllerInterface.sendPort(portNum);
+					
+					int status3 = inputStream.readInt();
+					System.out.println("STATIS PEERA JE: " + status3);
+					if(status3==1) {
+						System.out.println("USAO DA PRIMI PORT DRUGOGA!");
+						int portNum = inputStream.readInt();
+						String ip = inputStream.readUTF();
+						System.out.println("BROJ PORTA DRUGOGO PEERA: " + portNum);
+						System.out.println("IP ADRESA RUGOGO PEERA JE: " + ip);
+						userControllerInterface.sendPort(portNum,ip);
+						userControllerInterface.foundPeer();
+					}else {
+						System.out.println("USAO U ERROR PEERA");
+						userControllerInterface.errorPeer();
+					}
+					
+					
 					break;
+				case 8:
+					socket.close();
+					inputStream.close();
+					outputStream.close();
+					System.exit(0);
+					return;
 				case 100:
 					getVoice();
 					break;
@@ -292,7 +284,7 @@ public class UserController extends Thread {
 					break;
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				//System.out.println("USAO U DRUGI ERRO");
 				e.printStackTrace();
 			}
 			
