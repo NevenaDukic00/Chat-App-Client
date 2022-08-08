@@ -176,6 +176,15 @@ public class Layout {
 				userControllerPeer.closeSocket();
 				
 			}
+
+
+
+			@Override
+			public void sendAudio() {
+				//videti sta se salje u zagradi, to dodajte
+				
+				
+			}
 		});
 		contactListLayout.setContactListInterface(new ContactListInterface() {
 			
@@ -310,6 +319,12 @@ public class Layout {
 						@Override
 						public void respondToPeer(String message) {
 							chatLayout.respondToPeer(message);
+							
+						}
+
+						@Override
+						public void getAudio() {
+							chatLayout.hearSound();
 							
 						}
 					});

@@ -43,6 +43,14 @@ public class UserControllerPeer extends Thread{
 			e.printStackTrace();
 		}
 	}
+	
+	
+	public void sendAudio() {
+		//ovde videti sta se salje
+		//dataOutputStream.writeBytes(s);
+	}
+	
+	
 	public void sendMessage(String message) {
 		try {
 			//saljmo poruku
@@ -64,6 +72,9 @@ public class UserControllerPeer extends Thread{
 				String message1 = dataInputStream.readUTF();
 				//prikaz te poruke
 				System.out.println("PRIMLJENA PORUKA JE: " + message1);
+				
+				//ovde citamo te bajtove zvuka
+				
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

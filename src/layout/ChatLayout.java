@@ -124,8 +124,10 @@ public class ChatLayout extends VBox {
 			@Override
 			public void handle(ActionEvent arg0) {
 				//ovo je proba peera sa slanjem poruka
-				chatInterface.callUser();
 				
+				//ovim pokrecemo socket ka drugom korsiniku
+				chatInterface.callUser();
+				getSound();
 				
 			}
 			
@@ -142,6 +144,14 @@ public class ChatLayout extends VBox {
 		});
 	}
 
+	
+	public void getSound() {
+		//ovde treba da se uzme zvuk
+	}
+	
+	public void hearSound() {
+		
+	}
 	public void endCall() {
 		targetDataLine.stop();
 		targetDataLine.close();
