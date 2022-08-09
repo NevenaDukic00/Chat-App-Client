@@ -1,6 +1,7 @@
 package layout;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
+import javax.swing.JOptionPane;
+import javax.sound.sampled.DataLine.Info;
 
 import interfaces.ChatInterface;
 import javafx.event.ActionEvent;
@@ -42,9 +45,8 @@ public class ChatLayout extends VBox {
 	private Button call;
 	private Button endcall;
 	
-	private AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
 	
-	private TargetDataLine targetDataLine;	
+	private TargetDataLine targetLine;
 	
 	public ChatLayout(int dim) {
 		setSpacing(dim);
@@ -127,7 +129,7 @@ public class ChatLayout extends VBox {
 				
 				//ovim pokrecemo socket ka drugom korsiniku
 				chatInterface.callUser();
-				getSound();
+				//getSound();
 				
 			}
 			
@@ -145,16 +147,56 @@ public class ChatLayout extends VBox {
 	}
 
 	
+	
 	public void getSound() {
-		//ovde treba da se uzme zvuk
+		
+		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
+			
+		DataLine.Info datainfo;
+		datainfo = new DataLine.Info(TargetDataLine.class,audioFormat);
+		if(!AudioSystem.isLineSupported(datainfo)) {
+			System.out.println("Not suporrted!");
+		}
+		
+		try {
+			targetLine = (TargetDataLine)AudioSystem.getLine(datainfo);
+			targetLine.open();
+			
+			targetLine.start();
+			
+			Thread audioRecorderThread = new Thread()
+			{
+				@Override public void run() {
+					AudioInputStream recordStream = new AudioInputStream(targetLine);
+					File outFile = new File("record.wav");
+					try {
+						AudioSystem.write(recordStream, AudioFileFormat.Type.WAVE, outFile);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println("Stopped recording!");
+				}
+				
+			};
+			
+			audioRecorderThread.start();
+		
+		} catch (LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 	
 	public void hearSound() {
 		
 	}
 	public void endCall() {
-		targetDataLine.stop();
-		targetDataLine.close();
+		targetLine.stop();
+		targetLine.close();
 		System.out.println("Snimljenooooo!");
 	}
 	

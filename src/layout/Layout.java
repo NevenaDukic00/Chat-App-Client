@@ -25,6 +25,7 @@ import javafx.stage.WindowEvent;
 
 public class Layout {
 
+	///aaaaaaaaaaaaaaaaa
 	private Stage primaryStage;
 	private Scene scene;
 	private SignInLayout signInLayout;
@@ -153,7 +154,7 @@ public class Layout {
 
 			@Override
 			public void endCall() {
-				
+				userControllerPeer.sendAudio();
 				
 			}
 
