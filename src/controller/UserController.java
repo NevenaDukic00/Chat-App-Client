@@ -228,10 +228,12 @@ public class UserController extends Thread {
 					break;
 				case 4:
 					//primamo poruku od servera
+					String user = inputStream.readUTF();
+					System.out.println("user je: " + user);
 					String text = inputStream.readUTF();
 					System.out.println("Text je: " + text);
 					//saljemo poruku ka ChatLayoutu
-					userControllerInterface.showMessage(text);
+					userControllerInterface.showMessage(user,text);
 					break;
 				case 5:
 					//primamo odgovor da li postoji korisnik sa trazenim mailom

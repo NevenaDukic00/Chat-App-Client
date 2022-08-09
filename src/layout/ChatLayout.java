@@ -93,9 +93,9 @@ public class ChatLayout extends VBox {
 		getChildren().add(gridPane);
 		
 	}
-	public void showMessage(String message) {
+	public void showMessage(String user,String message) {
 		//prikazujemo poruku koju smo primili
-		chat.appendText("Contact: " + message);
+		chat.appendText(user.toUpperCase() + ": " + message);
 		chat.appendText("\n");
 	}
 	private void initAction() {
@@ -129,7 +129,7 @@ public class ChatLayout extends VBox {
 				
 				//ovim pokrecemo socket ka drugom korsiniku
 				chatInterface.callUser();
-				//getSound();
+				getSound();
 				
 			}
 			

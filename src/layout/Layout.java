@@ -26,6 +26,7 @@ import javafx.stage.WindowEvent;
 public class Layout {
 
 	///aaaaaaaaaaaaaaaaa
+	
 	private Stage primaryStage;
 	private Scene scene;
 	private SignInLayout signInLayout;
@@ -244,13 +245,13 @@ public class Layout {
 			}
 
 			@Override
-			public void showMessage(String message) {
+			public void showMessage(String user,String message) {
 				Platform.runLater(new Runnable() {
 					
 					@Override
 					public void run() {
 						//prosledjuejmo poruku
-						chatLayout.showMessage(message);
+						chatLayout.showMessage(user,message);
 						
 					}
 				});
