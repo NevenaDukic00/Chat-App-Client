@@ -104,6 +104,7 @@ public class ChatLayout extends VBox {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				//aaaa
 				//ukoliko je korisinik kliknuo send, prvo uziammo poruku iz message TextFielda i upisujemo u TextArea
 				chat.appendText("Me: " + message.getText());
 				chat.appendText("\n");
