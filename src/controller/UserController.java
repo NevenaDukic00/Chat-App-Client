@@ -48,7 +48,7 @@ public class UserController extends Thread {
 			//ovo valjda treba da se poveze saserverom u LAN-u
 			//socket = new Socket(IPracunara gde je server, 8888);
 			
-			socket = new Socket("192.168.100.41", 8888);
+			socket = new Socket("192.168.0.17", 8888);
 			//System.out.println("IP je: " + InetAddress.getLocalHost());
 			initStreams();
 		} catch (UnknownHostException e) {
@@ -220,8 +220,6 @@ public class UserController extends Thread {
 						messages.add(text);
 						
 					}
-					
-					
 					System.out.println("DOSAO DOVDEEE!");
 					//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
 					userControllerInterface.getMessages(messages);

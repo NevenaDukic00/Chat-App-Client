@@ -44,15 +44,23 @@ public class UserControllerPeer extends Thread{
 		
 
 		try {
+			
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream("record.wav"));
+			
+			
+			
 			int read;
 			byte[] buff = new byte[1024];
 			while ((read = in.read(buff)) > 0)
 			{
-			    dataOutputStream.write(buff, 0, read);
+			    out.write(buff, 0, read);
 			}
-			dataOutputStream.writeInt(100);
+			out.flush();
+			byte[] audioBytes = out.toByteArray();
 			System.out.println("Poslao zvuk!");
+			dataOutputStream.writeInt(audioBytes.length);
+			dataOutputStream.write(audioBytes);
 			dataOutputStream.flush();
 			
 		} catch (IOException e) {
@@ -100,12 +108,42 @@ public class UserControllerPeer extends Thread{
 			int message;
 			try {
 				//primamo poruku
-				String message1 = dataInputStream.readUTF();
+				//String message1 = dataInputStream.readUTF();
 				//prikaz te poruke
-				System.out.println("PRIMLJENA PORUKA JE: " + message1.toString());
+				//System.out.println("PRIMLJENA PORUKA JE: " + message1.toString());
+				
+				
+				int length = dataInputStream.readInt();
+				
+				System.out.println("Duzina je:" + length);
+				byte []audio = new byte[length];
+				dataInputStream.read(audio, 0, length);
+				
+				System.out.println("Izasao");
+				
+				
+				
+				File outFile = new File("copy.wav");
+				
+				ByteArrayInputStream in = new ByteArrayInputStream(audio);
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
+				
+				
+				while (in.read(audio)>0)
+				{
+				    out.write(audio,0,audio.length);
+				    
+				}
+				out.flush();
+				
+				
 //				byte[] buff = new byte[1024];
-//				while(dataInputStream.read()!=100) {
-//					int read = dataInputStream.read(buff);
+//				int read;
+//				//= dataInputStream.read(buff);
+//				//System.out.println(read);
+//				while((read = dataInputStream.read(buff))!=100) {
+//					//read = dataInputStream.read();
+//					System.out.println(read);
 //				}
 //				
 //				System.out.println("Procitao bajtove!");
@@ -117,8 +155,8 @@ public class UserControllerPeer extends Thread{
 //				}
 //				buStream.flush();
 //				buStream.close();
-//				
-//				
+				
+				
 //				
 //				//ovde citamo te bajtove zvuka
 //				

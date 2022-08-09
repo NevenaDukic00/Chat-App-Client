@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,7 +17,7 @@ public class UserControllerServerPeer extends Thread{
 		try {
 			//ovo da preko LAN-a trazi drugog korisnika
 			//serverSocket = new ServerSocket(a, ne znam bas sta je ovo, IP adresa racunara);
-			
+			System.out.println("Port je: " + port + "ip je: " + InetAddress.getLocalHost() );
 			serverSocket = new ServerSocket(a);
 			port = a;
 		} catch (IOException e) {

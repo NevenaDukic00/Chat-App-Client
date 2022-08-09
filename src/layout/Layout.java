@@ -314,6 +314,7 @@ public class Layout {
 					
 					//ovde kod new Socket mislim da treba new Socket() -> new Socket(IP adresa racunara koga zovemo, port)
 					
+					System.out.println("Ip je:" + ip + "; port je: " + port);
 					userControllerPeer = new UserControllerPeer(new Socket(ip, port));
 					
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
@@ -359,7 +360,7 @@ public class Layout {
 					
 					@Override
 					public void run() {
-						chatLayout.sendMessagetoPeer();
+						//chatLayout.sendMessagetoPeer();
 						
 					}
 				});
