@@ -23,6 +23,7 @@ import javafx.scene.text.Font;
 
 public class SignInLayout extends VBox{
 
+	//PRESLA
 	private TextField email;
 	private PasswordField password;
 	private Button sign_in;
@@ -75,11 +76,12 @@ public class SignInLayout extends VBox{
 	}
 	
 	private void initAction() {
+		//ukoliko smo kliknuli dugme za registraciju:
 		log_in.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				//zelimo da se registrujemo, pa saejmo signal da zelimo da predjemo na stranu za registraciju
+				//zelimo da se registrujemo, pa saljemo signal da zelimo da predjemo na stranu za registraciju
 				signInInterface.log_in();
 				
 			}
@@ -89,7 +91,14 @@ public class SignInLayout extends VBox{
 		sign_in.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				//prosledjujemo email i password
+				//prvo proveravamo da li su sva polja popunjena, ako nisu iskace Alert
+				if(email.getLength()==0 || password.getLength()==0) {
+					Alert alert = new Alert(AlertType.WARNING);
+					alert.setHeaderText("Error!");
+					alert.setContentText("All the fields have to be filled!");
+					alert.showAndWait();
+				}
+				//ukoliko su sva polja popunjena, prosledjujemo email i password
 				signInInterface.sign_in(email.getText(), password.getText());				
 			}
 		});
@@ -101,21 +110,24 @@ public class SignInLayout extends VBox{
 		alert.setContentText("Email or password is not correct!");
 		alert.showAndWait();
 	}
+	
+	private void Alert1() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setContentText("User with this email is already active!");
+		alert.showAndWait();
+	}
 	public void statusSignIn(int status) {
-		//prikazujemo Alert ukoliko je neispravan email ili password, u suprotnom prvo trazimo sve kontakte od datog usera, a onda idemo na ContactListLayout
+		//prikazujemo Alert ukoliko je neispravan email ili password, kao i ukoliko je vec ulogovan korisnik sa unetim podacima,
+		//u suprotnom prvo trazimo sve kontakte od datog usera, a onda idemo na ContactListLayout
 		if (status==1) {
-			System.out.println("JA SAM: " + email.getText());
 			signInInterface.signInChat(email.getText());
-		}else {
+		}else if(status==0){
 			AlertSignIn();
+		}else {
+			Alert1();
 		}
 	}
-	public void errorServer() {
-		Alert alert = new Alert(AlertType.WARNING);
-		alert.setHeaderText("Greska!");
-		alert.setContentText("Server nije povezan!");
-		Optional<ButtonType> result = alert.showAndWait();
-	}
+	
 	public void setSignInInterface(SignInInterface signInInterface) {
 		this.signInInterface = signInInterface;
 	}

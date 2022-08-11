@@ -11,6 +11,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -22,6 +25,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import interfaces.UserControllerPeerInterface;
+import javafx.application.Platform;
 
 public class UserControllerPeer extends Thread{
 	
@@ -29,14 +33,17 @@ public class UserControllerPeer extends Thread{
 	private DataInputStream dataInputStream;
 	private Socket socket;
 	
+	//ovde je flag identifikat da smo pokrenuli socket ka drugom korisniku
+	public boolean flag = false;
 	private UserControllerPeerInterface useInterface;
 	
 	public void setUseInterface(UserControllerPeerInterface useInterface) {
 		this.useInterface = useInterface;
 	}
 	public UserControllerPeer(Socket socket) {
-		System.out.println("PRIMIO JE SOCKET!!!");
+		
 		this.socket = socket;
+		flag = true;
 		initStreams();
 	}
 	
@@ -47,9 +54,8 @@ public class UserControllerPeer extends Thread{
 			
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream("record.wav"));
-			
-			
-			
+				
+			dataOutputStream.writeInt(1);
 			int read;
 			byte[] buff = new byte[1024];
 			while ((read = in.read(buff)) > 0)
@@ -62,6 +68,9 @@ public class UserControllerPeer extends Thread{
 			dataOutputStream.writeInt(audioBytes.length);
 			dataOutputStream.write(audioBytes);
 			dataOutputStream.flush();
+			in.close();
+			out.close();
+			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -101,70 +110,127 @@ public class UserControllerPeer extends Thread{
 		}
 		
 	}
+	public void closeConnection() {
+		try {
+			System.out.println("ZATVARA IH");
+			dataInputStream.close();
+			dataOutputStream.close();
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public void endConnection() {
+		try {
+			System.out.println("Izvrsilo se ovo!");
+			dataOutputStream.writeInt(2);
+			dataOutputStream.flush();
+			//closeConnection();
+			flag = false;
+			//useInterface.changeFlag1();
+			//useInterface.closePeer();
+			//return;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void endConnection1() {
+		try {
+			System.out.println("Izvrsilo se ovo!");
+			dataOutputStream.writeInt(3);
+			dataOutputStream.flush();
+			//System.out.println("ZAVRSIO JE!");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public void run() {
 		
 		while (true) {
-			int message;
 			try {
-				//primamo poruku
-				//String message1 = dataInputStream.readUTF();
-				//prikaz te poruke
-				//System.out.println("PRIMLJENA PORUKA JE: " + message1.toString());
-				
-				
-				int length = dataInputStream.readInt();
-				
-				System.out.println("Duzina je:" + length);
-				byte []audio = new byte[length];
-				dataInputStream.read(audio, 0, length);
-				
-				System.out.println("Izasao");
-				
-				
-				
-				File outFile = new File("copy.wav");
-				
-				ByteArrayInputStream in = new ByteArrayInputStream(audio);
-				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
-				
-				
-				while (in.read(audio)>0)
-				{
-				    out.write(audio,0,audio.length);
-				    
+				int message = dataInputStream.readInt();
+				System.out.println("Message je: " + message);
+				switch (message) {
+				case 1:
+					try {
+						//primamo poruku
+						//String message1 = dataInputStream.readUTF();
+						//prikaz te poruke
+						//System.out.println("PRIMLJENA PORUKA JE: " + message1.toString());
+						
+						
+						int length = dataInputStream.readInt();
+						
+						System.out.println("Duzina je:" + length);
+						byte []audio = new byte[length];
+						dataInputStream.read(audio, 0, length);
+						
+						System.out.println("Izasao");
+						
+						File outFile = new File("copy.wav");
+						if(Files.exists(Paths.get("copy.wav"), LinkOption.NOFOLLOW_LINKS )) {
+							outFile.delete();
+						}else {
+							outFile = new File("copy.wav");
+						}
+						
+						
+						
+						ByteArrayInputStream in = new ByteArrayInputStream(audio);
+						BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
+						
+						
+						while (in.read(audio)>0)
+						{
+						    out.write(audio,0,audio.length);
+						    
+						}
+						out.flush();
+						out.close();
+						in.close();
+						System.out.println(useInterface==null);
+						useInterface.receiveMessage();
+						
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					break;
+				case 2:
+					System.out.println("PRIMIO JE 2");
+					
+					flag = false;
+					dataOutputStream.writeInt(4);
+					dataOutputStream.flush();
+					//useInterface.changeFlag();
+					closeConnection();
+					return;
+				case 3:
+					dataOutputStream.writeInt(4);
+					dataOutputStream.flush();
+					System.out.println("IZVRSAVA SE 3");
+					flag = false;
+					
+					closeConnection();
+					return;
+				case 4:
+					System.out.println("PRIMIO JE 4");
+					closeConnection();
+					//useInterface.closePeer();
+					return;
+				default:
+					break;
 				}
-				out.flush();
-				
-				
-//				byte[] buff = new byte[1024];
-//				int read;
-//				//= dataInputStream.read(buff);
-//				//System.out.println(read);
-//				while((read = dataInputStream.read(buff))!=100) {
-//					//read = dataInputStream.read();
-//					System.out.println(read);
-//				}
-//				
-//				System.out.println("Procitao bajtove!");
-//				BufferedOutputStream buStream = new BufferedOutputStream(new FileOutputStream("kopija1.wav"));
-//				int i = 0;
-//				while(i<buff.length) {
-//					buStream.write(buff[i]);
-//					i++;
-//				}
-//				buStream.flush();
-//				buStream.close();
-				
-				
-//				
-//				//ovde citamo te bajtove zvuka
-//				
-			} catch (IOException e1) {
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				e.printStackTrace();
 			}
-//			
+			
 			
 		}	
 	}

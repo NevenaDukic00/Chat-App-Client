@@ -13,5 +13,7 @@ public interface UserControllerInterface {
 	public void sendPort(int port,String ip);
 	public void errorPeer();
 	public void foundPeer();
+	public void startPeerServer(int port);
+	public void closePeer();
 	
 }

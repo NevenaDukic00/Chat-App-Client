@@ -21,6 +21,8 @@ import javafx.scene.text.Text;
 
 public class RegistrationLayout extends VBox{
 
+	
+	//PREDJENO
 	private TextField username;
 	private TextField email;
 	private PasswordField password;
@@ -81,17 +83,19 @@ public class RegistrationLayout extends VBox{
 	}
 	private void initAction() {
 		
+		//ukoliko kliknemo dugme register:
 		register.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
+				//prvo proveravamo da li su sva polja popunjena, ukoliko nisu iskace Alert
 				if(username.getLength()==0 || password.getLength()==0 || email.getLength()==0) {
 					Alert alert = new Alert(AlertType.WARNING);
 					alert.setHeaderText("Error!");
 					alert.setContentText("All the fields have to be filled!");
 					alert.showAndWait();
 				}else
-				//kada kliknemo na register saljemo uneti username, password i email serveru preko registrationInterface
+				//ukoliko je sve popunjeno, saljemo uneti username, password i email serveru preko registrationInterface
 				registrationInterface.register(username.getText(),password.getText(),email.getText());
 				
 			}
@@ -99,7 +103,7 @@ public class RegistrationLayout extends VBox{
 		back.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				//ukoliko smo kliknuli back vracamo se na signInLayout
+				//ukoliko smo kliknuli back vracamo se na signInLayout i brisemo podatke iz polja za registraciju
 				clearRegistration();
 				registrationInterface.back();
 			}

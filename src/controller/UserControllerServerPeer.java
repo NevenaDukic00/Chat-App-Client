@@ -12,12 +12,17 @@ public class UserControllerServerPeer extends Thread{
 	ServerSocket serverSocket;
 	int port;
 	
+	
+	UserControllerServerPeerInterface userControllerServerPeerInterface;
+	
+
+	public void setUserControllerServerPeerInterface(UserControllerServerPeerInterface userControllerServerPeerInterface) {
+		this.userControllerServerPeerInterface = userControllerServerPeerInterface;
+	}
+
 	public UserControllerServerPeer(int a) {
 		
 		try {
-			//ovo da preko LAN-a trazi drugog korisnika
-			//serverSocket = new ServerSocket(a, ne znam bas sta je ovo, IP adresa racunara);
-			System.out.println("Port je: " + port + "ip je: " + InetAddress.getLocalHost() );
 			serverSocket = new ServerSocket(a);
 			port = a;
 		} catch (IOException e) {
@@ -28,14 +33,14 @@ public class UserControllerServerPeer extends Thread{
 	
 	@Override
 	public void run() {
-		System.out.println("MOJ BROJ PORTA JE: " + port);
+		//osluskuje na zadatom portu
 		while (true) {
 			try {
 				Socket socket = serverSocket.accept();
 				
 				UserControllerPeer userPeer = new UserControllerPeer(socket);
-				//UserControllerListPeer.addPeer(userPeer);
-				userPeer.start();
+				userControllerServerPeerInterface.initUser(userPeer);
+				
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

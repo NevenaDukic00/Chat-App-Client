@@ -94,6 +94,7 @@ public class UserController extends Thread {
 			outputStream.writeInt(2);
 			outputStream.writeUTF(email);
 			outputStream.writeUTF(password);
+			//saljemo i ip adresu racaunara serveru
 			outputStream.writeUTF(InetAddress.getLocalHost().toString());
 			outputStream.flush();
 		} catch (IOException e) {
@@ -116,8 +117,7 @@ public class UserController extends Thread {
 	}
 	public void sendMessage(String message,String email1,String email2) {
 		try {
-			//saljemo serveru ko je napisao, kome i poruku
-			System.out.println("PORUKA PRE SLANJA JE: " + message);
+			//saljemo serveru ko je napisao poruku, kome je napisao poruku i samu poruku
 			outputStream.writeInt(4);
 			outputStream.writeUTF(email1);
 			outputStream.writeUTF(email2);
@@ -143,6 +143,17 @@ public class UserController extends Thread {
 		}
 	}
 	
+	public void removeContact(String email) {
+		
+		try {
+			outputStream.writeInt(10);
+			outputStream.writeUTF(email);
+			outputStream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void getContacts(String email) {
 		try {
 			//saljemo zahtev za svim kontaktima usera
@@ -161,7 +172,7 @@ public class UserController extends Thread {
 			
 	public void getPort(String email) {
 		try {
-			//saljemo poruku serveru za port od korisnika kome saljemo poruku
+			//saljemo poruku serveru za port i ip od korisnika kome saljemo glasovnu poruku
 			outputStream.writeInt(7);
 			outputStream.writeUTF(email);
 			outputStream.flush();
@@ -195,41 +206,40 @@ public class UserController extends Thread {
 				case 2:
 					//prima poruku o uspesnosti logovanja
 					int status1 = inputStream.readInt();
+					
 					if(status1==1) {
 						//ako je uspesno uzima broj porta
 						int port = inputStream.readInt();
-						//cim se se ulogovali, pokrecemo  UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
-						System.out.println("BROJ PORTA OVOGA JE : " + port);
-						new UserControllerServerPeer(port).start();
+						//cim se se ulogovali,kreiramo UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
+						userControllerInterface.startPeerServer(port);
 					}
+					
 					//salje poruku o uspesnosti logovanja
 					userControllerInterface.sign_inStatus(status1);
 					break;
+					
 				case 3:
-					//ovde sam stavila kao max broj poruka 300
+					//primamo listu poruka
 					ArrayList<String> messages = new ArrayList<>();
-					System.out.println("USAO U DOBIJANJE PORUKA!");
-					int k = 0;
 					//citamo poruke
 					while(true) {
 						String text = inputStream.readUTF();
 						if (text.equals("end of messages")) {
 							break;
 						}
-						System.out.println("Poruka: " + text);
 						messages.add(text);
 						
 					}
-					System.out.println("DOSAO DOVDEEE!");
+					
 					//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
 					userControllerInterface.getMessages(messages);
+					
 					break;
 				case 4:
-					//primamo poruku od servera
+					//primamo username korisnika i poruku od servera
 					String user = inputStream.readUTF();
-					System.out.println("user je: " + user);
 					String text = inputStream.readUTF();
-					System.out.println("Text je: " + text);
+					
 					//saljemo poruku ka ChatLayoutu
 					userControllerInterface.showMessage(user,text);
 					break;
@@ -239,28 +249,28 @@ public class UserController extends Thread {
 					userControllerInterface.statusEmail(s);
 					break;
 				case 6:
-					//uzimamo kontakte
+					//uzimamo sve kontakte korisnika
 					ArrayList<String>contacts = new ArrayList<>();
 					int length = inputStream.readInt();
-					System.out.println("Broj contacta je: " + length);
+					
 					for (int i = 0; i < length; i++) {
-						
 						contacts.add(inputStream.readUTF());
-						System.out.println(contacts.get(i));
+						
 					}
 					userControllerInterface.getContacts(contacts);
 					break;
 				case 7:
-					//primamo port korisnika za peer
+					//primamo port i ip korisnika za peer:
 					
 					int status3 = inputStream.readInt();
-					System.out.println("STATIS PEERA JE: " + status3);
+					
+					//ukoliko je korisnik aktivan i u tom chatu:
 					if(status3==1) {
-						System.out.println("USAO DA PRIMI PORT DRUGOGA!");
+						//uzimamo port
 						int portNum = inputStream.readInt();
+						//uzimamo ip
 						String ip = inputStream.readUTF();
-						System.out.println("BROJ PORTA DRUGOGO PEERA: " + portNum);
-						System.out.println("IP ADRESA RUGOGO PEERA JE: " + ip);
+						
 						userControllerInterface.sendPort(portNum,ip);
 						userControllerInterface.foundPeer();
 					}else {
@@ -271,6 +281,7 @@ public class UserController extends Thread {
 					
 					break;
 				case 8:
+					//userControllerInterface.closePeer();
 					socket.close();
 					inputStream.close();
 					outputStream.close();

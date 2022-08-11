@@ -28,7 +28,7 @@ import javafx.scene.layout.VBox;
 
 public class ContactListLayout extends VBox {
 
-	
+	//PRESLA
 	private TableView table;
 	private TableColumn contact;
 	private Button addContact;
@@ -80,19 +80,20 @@ public class ContactListLayout extends VBox {
 		a.showAndWait();
 	}
 	private void initAction() {
+		//ukoliko kliknemo na dugme addContact:
 		addContact.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				//ako kliknemo na addContact iskace prozor za upisivanje emaila
+				//iskace prozor za upisivanje emaila
 				showAlert();
 				
 			}
 		});
 		
+		//kada izaberemo neki kontakt iz liste kontakata:
 		table.setOnMouseClicked((MouseEvent event) -> {
-			//izabrali smo kontakta kome zelimo da posaljemo poruku
-	       System.out.println("KLIKNUO JE NA:" + table.getSelectionModel().getSelectedItem().toString());
+			//uzimamo email kontakta sa kojim hocemo da pricamo
 	       Contact contact = (Contact) table.getSelectionModel().getSelectedItem();
 	       //zapocinjemo chat sa tim kontaktom
 	       contactListInterface.startChat(contact.getEmail());
@@ -104,9 +105,8 @@ public class ContactListLayout extends VBox {
 		int length = contactsList.size();
 		int k = 0;
 		while (k<length) {
-			System.out.println("Contact je: " + contactsList.get(k));
 			//ubacujemo konakte u ObservableList
-			contacts.add(new Contact(contactsList.get(k), null));
+			contacts.add(new Contact(contactsList.get(k)));
 			k++;
 		}
 	}
@@ -118,8 +118,7 @@ public class ContactListLayout extends VBox {
 	}
 	private void addContactToList() {
 		//dodavanje kontakta u listu
-		//ovo username sto saljem null moze da se izbaci, mislim da ne sluzi nicemu posle
-		contacts.add(new Contact(contactEmail,null));
+		contacts.add(new Contact(contactEmail));
 		
 	}
 	public void addContact(int status) {

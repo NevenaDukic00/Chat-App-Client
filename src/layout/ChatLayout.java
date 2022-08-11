@@ -1,7 +1,11 @@
 package layout;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -9,9 +13,11 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
 import javax.sound.sampled.DataLine.Info;
 
@@ -30,6 +36,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -44,8 +51,12 @@ public class ChatLayout extends VBox {
 	private Button back;
 	private Button call;
 	private Button endcall;
+	private Button hearMessage;
 	
-	
+	//flag nam sluzi kao indikator da li je pokrenut socket ka drugom korisniku za p2p komunikaciju
+	public boolean flag = false;
+	// = 
+	AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
 	private TargetDataLine targetLine;
 	
 	public ChatLayout(int dim) {
@@ -69,6 +80,7 @@ public class ChatLayout extends VBox {
 		back = new Button("BACK");
 		call = new Button("CALL");
 		endcall = new Button("END CALL");
+		hearMessage = new Button("HEAR MESSAGE");
 	}
 	
 	private void initLayout() {
@@ -86,7 +98,7 @@ public class ChatLayout extends VBox {
 		
 		HBox hBox1 = new HBox();
 		hBox1.setSpacing(30);
-		hBox1.getChildren().addAll(call,endcall);
+		hBox1.getChildren().addAll(call,endcall,hearMessage);
 		
 		gridPane.add(hBox, 0, 1);
 		gridPane.add(hBox1, 0, 2);
@@ -104,33 +116,46 @@ public class ChatLayout extends VBox {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				//aaaa
-				//ukoliko je korisinik kliknuo send, prvo uziammo poruku iz message TextFielda i upisujemo u TextArea
-				chat.appendText("Me: " + message.getText());
-				chat.appendText("\n");
-				//zatim saljemo tu poruku ka UserControlleru preko chatInterface
-				chatInterface.sendMessage(message.getText());
-				message.clear();
+				//ukoliko je korisinik uneo poruku i kliknuo send, prvo uzimamo poruku iz message TextFielda i upisujemo u TextArea
+				if(message.getLength()!=0) {
+					chat.appendText("Me: " + message.getText());
+					chat.appendText("\n");
+					
+					//zatim saljemo tu poruku ka UserControlleru preko chatInterface
+					chatInterface.sendMessage(message.getText());
+					message.clear();
+					
+				}
 				
 			}
 		});
+		//ukoliko je korisnik kliknuo na back
 		back.setOnAction(new EventHandler<ActionEvent>() {
 			//vracamo se na ContactChatLayout
 			@Override
 			public void handle(ActionEvent arg0) {
-				chatInterface.backToContacts();
+				
+				chatInterface.backToContacts(flag);
+				flag = false;
 				
 			}
 		});
+		//kada pritisnemo na call
 		call.setOnAction(new EventHandler<ActionEvent>() {
 
+			
 			@Override
 			public void handle(ActionEvent arg0) {
-				//ovo je proba peera sa slanjem poruka
 				
-				//ovim pokrecemo socket ka drugom korsiniku
+				//prvo proveravamo da li je vec pokrenut socket ka drugom korinsiku, ukoliko nije onda trazimo port i ip korisnika
+				System.out.println("FLAG JE U CHATU: " + flag);
 				chatInterface.callUser();
-				getSound();
+//				if(flag==false) {
+//					
+//					flag = true;
+//				}
+				
+				//getSound();
 				
 			}
 			
@@ -145,13 +170,53 @@ public class ChatLayout extends VBox {
 				
 			}
 		});
+		
+		hearMessage.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				try{
+					
+					if(Files.exists(Paths.get("copy.wav"), LinkOption.NOFOLLOW_LINKS)) {
+						//AudioInputStream ais = AudioSystem.getAudioInputStream(new File("copy.wav"));
+			            Clip test = AudioSystem.getClip();  
+			           
+			           // System.out.println(ais.getFormat());
+			            test.open(AudioSystem.getAudioInputStream(new File("copy.wav")));
+				        test.start();
+				        
+				      
+
+			         //  Thread.sleep(test.getMicrosecondLength()/1000);
+			            while (!test.isRunning())
+			                Thread.sleep(10);
+			            while (test.isRunning())
+			                Thread.sleep(10);
+			            
+			            test.close();
+					}else {
+						Alert alert = new Alert(AlertType.WARNING);
+						alert.setContentText("You do not have new messages!");
+						alert.showAndWait();
+					}
+					
+		        }catch(Exception ex){
+		            ex.printStackTrace();
+		        }
+				
+				
+				
+			}
+		});
 	}
 
-	
+	public void receiveMessagePeer() {
+		chat.appendText("STIGLA VAM JE GLASOVNA PORUKA");
+	}
 	
 	public void getSound() {
 		
-		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
+		
 			
 		DataLine.Info datainfo;
 		datainfo = new DataLine.Info(TargetDataLine.class,audioFormat);
@@ -194,6 +259,7 @@ public class ChatLayout extends VBox {
 	
 	public void hearSound() {
 		
+		 
 	}
 	public void endCall() {
 		targetLine.stop();
@@ -223,17 +289,16 @@ public class ChatLayout extends VBox {
 	public void setMessages(ArrayList<String> messages,String email) {
 		chat.clear();
 		message.clear();
-		System.out.println("DOSAO DA UPISE!");
-		//citamo poruke, posto su u formatu user:poruka razdvajamo preko substring
+		
+		//citamo poruke, posto su u odredjenom formatu, zeljene delove dobijamo preko substring
 		for (int i = 0; i < messages.size(); i++) {
 			int position = messages.get(i).indexOf(";");
 			int position1 = messages.get(i).indexOf("#") +1;
 			String user = messages.get(i).substring(0, position);
-			System.out.println("Email je: " + user);
+			
 			if (user.equals(email)) {
 				chat.appendText("ME: ");
 			}else {
-				
 				String user1 = messages.get(i).substring(position1);
 				chat.appendText(user1.toUpperCase() + ": ");
 			}
