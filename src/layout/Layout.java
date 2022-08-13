@@ -51,6 +51,7 @@ public class Layout {
 		initAction();
 	}
 	private void initComponents() {
+		//aaaaaaaaa
 		signInLayout = new SignInLayout(10);
 		registrationLayout = new RegistrationLayout(10);
 		contactListLayout = new ContactListLayout(10);
