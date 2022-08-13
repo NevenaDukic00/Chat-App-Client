@@ -60,34 +60,6 @@ public class ChatLayout extends VBox {
 	
 	//flag nam sluzi kao indikator da li je pokrenut socket ka drugom korisniku za p2p komunikaciju
 	public boolean flag = false;
-	//(48000, 16, 2, true, true);
-	//= new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false)
-	//PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
-	
-	
-	
-//	Mixer: Speakers (3- USB PnP Audio Device)
-//	  interface SourceDataLine supporting 8 audio formats, and buffers of at least 32 bytes
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian
-//	  interface Clip supporting 8 audio formats, and buffers of at least 32 bytes
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian
-//	
-	
-	
 	
 	private TargetDataLine targetLine;
 	
@@ -239,26 +211,7 @@ public class ChatLayout extends VBox {
 						audioStream.close();
 
 						
-//						//ukoliko postoji fajl preko interfejsa Clip otvaramo ga i pustamo zvuk
-//						//AudioInputStream ais = AudioSystem.getAudioInputStream(new File("copy.wav"));
-//			            Clip test = AudioSystem.getClip();  
-//			           
-//			           // System.out.println(ais.getFormat());
-//			            test.open(AudioSystem.getAudioInputStream(new File("copy.wav")));
-//				        test.start();
-//				     //   test.setFramePosition(0);
-//				      
-//
-//			         //  Thread.sleep(test.getMicrosecondLength()/1000);
-//			            while (!test.isRunning())
-//			                Thread.sleep(10);
-//			            while (test.isRunning())
-//			                Thread.sleep(10);
-//			            
-//			            test.close();
-//			            
-//			            File file = new File("hear.wav");
-//			            file.delete();
+
 					}else {
 						//ukoliko fajl ne postoji prikazujemo Alert da nije primljena glasovna poruka
 						Alert alert = new Alert(AlertType.WARNING);
@@ -282,28 +235,6 @@ public class ChatLayout extends VBox {
 	}
 	
 	public void getSound() {
-		System.out.println("OTVORENO");
-//		interface TargetDataLine supporting 8 audio formats, and buffers of at least 32 bytes
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian ->ne radi sa false
-//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian -> ovaj je do sada NAJBOLJI(true je poslednji)
-//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian(true je poslednji)NAJBOLJIIIIII!
-//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian -> ne radi sa false
-
-		
-		
-//		 interface TargetDataLine supporting 8 audio formats, and buffers of at least 32 bytes
-//		    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//		    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
-//		    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
-//		    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
-//		    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//		    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
-//		    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian(sa true je ok)
-//		    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian ->ne radi sa false
 		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, true);
 		//pomocu ove fje slusamo zvuk sa racunara i kada korisnik klikne end (da je zavrsio glasovnu poruku), upisujemo zvuk u file record.wav	
 		DataLine.Info datainfo;
@@ -347,7 +278,7 @@ public class ChatLayout extends VBox {
 	
 	
 	public void endCall() {
-		System.out.println("ZATVORENO");
+		
 		targetLine.stop();
 		targetLine.close();
 		System.out.println("Snimljenooooo!");

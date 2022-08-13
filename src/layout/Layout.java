@@ -51,7 +51,7 @@ public class Layout {
 		initAction();
 	}
 	private void initComponents() {
-		//aaaaaaaaa
+		
 		signInLayout = new SignInLayout(10);
 		registrationLayout = new RegistrationLayout(10);
 		contactListLayout = new ContactListLayout(10);
@@ -74,7 +74,7 @@ public class Layout {
 			public void handle(WindowEvent arg0) {
 				
 				if(userController!=null) {
-					//proveravamo da li je i dalje pokrenuta veza sas drugim koriniskom (p2p), ukoliko nije onda je prov prekidamo
+					//proveravamo da li je i dalje pokrenuta veza sa drugim koriniskom (p2p), ukoliko nije onda je prvo prekidamo
 					if(chatLayout.flag==true && userControllerPeer.flag==true) {
 						userControllerPeer.endConnection();
 					}else if(userControllerPeer!=null && userControllerPeer.flag==true) {
