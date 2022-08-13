@@ -48,7 +48,6 @@ public class Layout {
 		initComponents();
 		initStageAction();
 		userController = new UserController();
-		userController.start();
 		initAction();
 	}
 	private void initComponents() {
@@ -69,18 +68,18 @@ public class Layout {
 		
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			
+			//UKOLIKO SMO KLIKNULI DA SE UGASI EKRAN
 			@Override
 			public void handle(WindowEvent arg0) {
+				
 				if(userController!=null) {
-					//System.out.println(userControllerPeer.flag);
+					//proveravamo da li je i dalje pokrenuta veza sas drugim koriniskom (p2p), ukoliko nije onda je prov prekidamo
 					if(chatLayout.flag==true && userControllerPeer.flag==true) {
-						System.out.println("FLAG JE TRUE!");
 						userControllerPeer.endConnection();
 					}else if(userControllerPeer!=null && userControllerPeer.flag==true) {
-						System.out.println("USAO U ELSE");
 						userControllerPeer.endConnection();
-						System.out.println("ZAVRSIO FJU");
 					}
+					//na kraju saljemo poruku serveru da se odjavljujemo
 					userController.logOff();	
 				}else {
 					Platform.exit();
@@ -149,12 +148,14 @@ public class Layout {
 			public void backToContacts(boolean flag) {
 				//vracamo se na ContactListlayout
 				scene.setRoot(contactListLayout);
-				
+				//saljemo serveru da azurira korisnika sa kojim trenutno komuniciramo
 				userController.removeContact(user.getEmail());
-				System.out.println("Flag je: " + flag);
+				
+				//ovde proveravamo da li je korisnik slao glasovne drugom korinsiku, jer ako jeste mora se zatvoriti pokrenuti Socketi
 				if((chatLayout.flag==true && userControllerPeer.flag==true) || (userControllerPeer!=null && userControllerPeer.flag==true)) {
-					System.out.println("UGASIO GA!");
+					
 					chatLayout.flag = false;
+					//saljemo poruku da zelimo da prekinemo konekciju
 					userControllerPeer.endConnection();
 				}
 				
@@ -162,18 +163,21 @@ public class Layout {
 
 			@Override
 			public void callUser() {
-				//trazimo port i ip klijenta kome saljemo poruku preko peera
 				
+				//ukoliko je neki od uslova ispunjen:
 				if((chatLayout.flag==false && userControllerPeer==null) || userControllerPeer==null || userControllerPeer.flag==false) {
 					if(chatLayout.flag==false) {
 						chatLayout.flag = true;
 					}
-					System.out.println("USAO OVDE DA TRAZI");
+					//trazimo broj porta i ip korisnika kome zelimo da posaljemo glasovnu poruku od servera
 					userController.getPort(user.getContactEmail());
+					
+					//kada je uspesno uspostavljena veza, onda uzimamo zvuk
 					chatLayout.getSound();
 				}else if(chatLayout.flag==true && userControllerPeer.flag==false) {
 					chatLayout.showErrorPeer();
 				}else {
+					//ukoliko korinsik koji je primo glasnovunu zeli da uzvrati glasovnom, ovo se izvrsava
 					chatLayout.flag = true;
 					chatLayout.getSound();
 				}
@@ -183,6 +187,7 @@ public class Layout {
 
 			@Override
 			public void endCall() {
+				//saljemo zvuk
 				userControllerPeer.sendAudio();
 				
 			}
@@ -209,12 +214,7 @@ public class Layout {
 
 
 
-			@Override
-			public void sendAudio() {
-				//videti sta se salje u zagradi, to dodajte
-				
-				
-			}
+			
 		});
 		contactListLayout.setContactListInterface(new ContactListInterface() {
 			
@@ -251,11 +251,6 @@ public class Layout {
 				//
 				userControllerServerPeer.setUserControllerServerPeerInterface(new UserControllerServerPeerInterface() {
 					
-					@Override
-					public void startConversation() {
-						// TODO Auto-generated method stub
-						
-					}
 					
 					@Override
 					public void initUser(UserControllerPeer usPeer) {
@@ -265,66 +260,21 @@ public class Layout {
 						System.out.println("KREIRANO PREKO SERVERA");
 						userControllerPeer.start();
 						userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
-							//ovaj deo mi ne radi nesto, mislila sam da se kao kada ti stigne poruka preko peera da ti iskoci Alert ali ne radi
-							@Override
-							public void respondToPeer(String message) {
-								chatLayout.respondToPeer(message);
-								
-							}
-
-							@Override
-							public void getAudio() {
-								Platform.runLater(new Runnable() {
-									
-									@Override
-									public void run() {
-										chatLayout.hearSound();
-										
-									}
-								});
-								
-								
-							}
-							
 							@Override
 							public void receiveMessage() {
 								Platform.runLater(new Runnable() {
 									
 									@Override
 									public void run() {
+										
 										chatLayout.receiveMessagePeer();
 										
 									}
 								});
-								
-								
-							}
-
-							@Override
-							public void changeFlag() {
-								System.out.println("PROMENILA SE FLAG");
-								chatLayout.flag = false;
-								
-								
-							}
-
-							@Override
-							public void changeFlag1() {
-								userControllerPeer.flag = false;
-								
-							}
-
-							@Override
-							public void closePeer() {
-								userController.logOff();
-								
 							}
 						});
-						
 					}
 				});
-				
-				
 			}
 			
 			
@@ -424,25 +374,10 @@ public class Layout {
 				try {
 					
 					//pravimo socket za komunikaciju preko peera, na portu i ip adresi na kojima se nalazi korisnik sa kojim komuniciramo
-					//proveravamo da je vec pokrenuta komunikacija(Socket)
-					System.out.println("USAO OVDE ZA IP I PORT");
 					userControllerPeer = new UserControllerPeer(new Socket(ip, port));
 					userControllerPeer.start();
+					
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
-						
-						@Override
-						public void getAudio() {
-							Platform.runLater(new Runnable() {
-								
-								@Override
-								public void run() {
-									chatLayout.hearSound();
-									
-								}
-							});
-							
-							
-						}
 						
 						@Override
 						public void receiveMessage() {
@@ -451,37 +386,8 @@ public class Layout {
 								@Override
 								public void run() {
 									chatLayout.receiveMessagePeer();
-									
 								}
 							});
-							
-							
-						}
-
-						@Override
-						public void changeFlag() {
-							System.out.println("PROMENILA SE FLAG");
-							chatLayout.flag = false;
-							
-							
-						}
-
-						@Override
-						public void changeFlag1() {
-							userControllerPeer.flag = false;
-							
-						}
-
-						@Override
-						public void closePeer() {
-							userController.logOff();
-							
-						}
-
-						@Override
-						public void respondToPeer(String message) {
-							// TODO Auto-generated method stub
-							
 						}
 					});
 				} catch (UnknownHostException e) {
@@ -507,25 +413,7 @@ public class Layout {
 				
 			}
 
-			@Override
-			public void foundPeer() {
-				Platform.runLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						//chatLayout.sendMessagetoPeer();
-						
-					}
-				});
-				
-			}
-
-
-			@Override
-			public void closePeer() {
-				//userController.logOff();
-				
-			}
+			
 
 			
 

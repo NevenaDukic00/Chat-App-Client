@@ -29,6 +29,8 @@ import javax.sound.sampled.TargetDataLine;
 
 import interfaces.UserControllerInterface;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class UserController extends Thread {
 
@@ -48,16 +50,26 @@ public class UserController extends Thread {
 			//ovo valjda treba da se poveze saserverom u LAN-u
 			//socket = new Socket(IPracunara gde je server, 8888);
 			
-			socket = new Socket("192.168.0.17", 8888);
+			socket = new Socket("localhost", 8888);
 			//System.out.println("IP je: " + InetAddress.getLocalHost());
 			initStreams();
+			start();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			//System.out.println("USAO OVDE");
 			e.printStackTrace();
 		} catch (IOException e) {
-			//System.out.println("USAO OVDE");
-			//Platform.exit();
-			e.printStackTrace();
+		
+			Platform.runLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					Alert a = new Alert(AlertType.WARNING);
+					a.setContentText("Server is not active right now!");
+					a.showAndWait();
+					System.exit(0);
+					
+				}
+			});
 		}
 		
 	}
@@ -196,7 +208,7 @@ public class UserController extends Thread {
 		while (true) {
 			try {
 				int message = inputStream.readInt();
-				System.out.println("Broj poruke je: " + message);
+				//System.out.println("Broj poruke je: " + message);
 				switch (message) {
 				case 1:
 					//posto smo primili 1, znaci da dobija odgovor vezan za registraciju
@@ -270,18 +282,18 @@ public class UserController extends Thread {
 						int portNum = inputStream.readInt();
 						//uzimamo ip
 						String ip = inputStream.readUTF();
-						
+						//saljemo port i ip kako bismo pokrenuli vezu preko socketa ka trazenom korisniku
 						userControllerInterface.sendPort(portNum,ip);
-						userControllerInterface.foundPeer();
+						
 					}else {
-						System.out.println("USAO U ERROR PEERA");
+						//ukoliko korisnik nije na mrezi ili nije u nasem chatu saljemo da se ispise error message
 						userControllerInterface.errorPeer();
 					}
 					
 					
 					break;
 				case 8:
-					//userControllerInterface.closePeer();
+					//prima poruku od servera da moze uspesno da se ugasi i zatvaramo streamove i socket korisnika
 					socket.close();
 					inputStream.close();
 					outputStream.close();
@@ -295,9 +307,9 @@ public class UserController extends Thread {
 					break;
 				}
 			} catch (IOException e) {
-				//System.out.println("USAO U DRUGI ERRO");
 				e.printStackTrace();
 			}
+				
 			
 		}
 		

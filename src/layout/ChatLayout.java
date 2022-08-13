@@ -1,8 +1,11 @@
 package layout;
 
+
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
@@ -16,6 +19,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
@@ -42,6 +46,7 @@ import javafx.scene.text.TextAlignment;
 
 public class ChatLayout extends VBox {
 
+	//PRESLI
 	private TextArea chat;
 	private ScrollBar scrollBar;
 	private Button send;
@@ -55,8 +60,35 @@ public class ChatLayout extends VBox {
 	
 	//flag nam sluzi kao indikator da li je pokrenut socket ka drugom korisniku za p2p komunikaciju
 	public boolean flag = false;
-	// = 
-	AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false);
+	//(48000, 16, 2, true, true);
+	//= new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4,44100,false)
+	//PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
+	
+	
+	
+//	Mixer: Speakers (3- USB PnP Audio Device)
+//	  interface SourceDataLine supporting 8 audio formats, and buffers of at least 32 bytes
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian
+//	  interface Clip supporting 8 audio formats, and buffers of at least 32 bytes
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian
+//	
+	
+	
+	
 	private TargetDataLine targetLine;
 	
 	public ChatLayout(int dim) {
@@ -135,6 +167,7 @@ public class ChatLayout extends VBox {
 			@Override
 			public void handle(ActionEvent arg0) {
 				
+				
 				chatInterface.backToContacts(flag);
 				flag = false;
 				
@@ -146,55 +179,88 @@ public class ChatLayout extends VBox {
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				
-				//prvo proveravamo da li je vec pokrenut socket ka drugom korinsiku, ukoliko nije onda trazimo port i ip korisnika
-				System.out.println("FLAG JE U CHATU: " + flag);
+				//zove se fja callUser
 				chatInterface.callUser();
-//				if(flag==false) {
-//					
-//					flag = true;
-//				}
-				
-				//getSound();
+
 				
 			}
 			
 			
 		});
+		//kada kliknemo na endCall:
 		endcall.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				//pomocu ove fje zatvaramo otvoreni stream za slusanje zvuka
 				endCall();
+				//saljemo zvuk drugom korisniku
 				chatInterface.endCall();
 				
 			}
 		});
 		
+		//kada korisnik klikne na hear message
 		hearMessage.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent arg0) {
 				try{
-					
-					if(Files.exists(Paths.get("copy.wav"), LinkOption.NOFOLLOW_LINKS)) {
-						//AudioInputStream ais = AudioSystem.getAudioInputStream(new File("copy.wav"));
-			            Clip test = AudioSystem.getClip();  
-			           
-			           // System.out.println(ais.getFormat());
-			            test.open(AudioSystem.getAudioInputStream(new File("copy.wav")));
-				        test.start();
-				        
-				      
+					//ukoliko ne postoji fajl to znaci da nema glasovnih da se prime, pa to prvo proveravamo
+					if(Files.exists(Paths.get("hear.wav"), LinkOption.NOFOLLOW_LINKS)) {
+						
+						File audioFile = new File("hear.wav");
+						 
+						AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+						 
+						AudioFormat format = audioStream.getFormat();
+						 
+						DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+						 
+						SourceDataLine audioLine = (SourceDataLine) AudioSystem.getLine(info);
 
-			         //  Thread.sleep(test.getMicrosecondLength()/1000);
-			            while (!test.isRunning())
-			                Thread.sleep(10);
-			            while (test.isRunning())
-			                Thread.sleep(10);
-			            
-			            test.close();
+						audioLine.open(format);
+						 
+						audioLine.start();
+						
+						int BUFFER_SIZE = 4096;
+						 
+						byte[] bytesBuffer = new byte[BUFFER_SIZE];
+						int bytesRead = -1;
+						 
+						while ((bytesRead = audioStream.read(bytesBuffer)) != -1) {
+						    audioLine.write(bytesBuffer, 0, bytesRead);
+						}
+						
+						audioLine.drain();
+						 
+						audioLine.close();
+						 
+						audioStream.close();
+
+						
+//						//ukoliko postoji fajl preko interfejsa Clip otvaramo ga i pustamo zvuk
+//						//AudioInputStream ais = AudioSystem.getAudioInputStream(new File("copy.wav"));
+//			            Clip test = AudioSystem.getClip();  
+//			           
+//			           // System.out.println(ais.getFormat());
+//			            test.open(AudioSystem.getAudioInputStream(new File("copy.wav")));
+//				        test.start();
+//				     //   test.setFramePosition(0);
+//				      
+//
+//			         //  Thread.sleep(test.getMicrosecondLength()/1000);
+//			            while (!test.isRunning())
+//			                Thread.sleep(10);
+//			            while (test.isRunning())
+//			                Thread.sleep(10);
+//			            
+//			            test.close();
+//			            
+//			            File file = new File("hear.wav");
+//			            file.delete();
 					}else {
+						//ukoliko fajl ne postoji prikazujemo Alert da nije primljena glasovna poruka
 						Alert alert = new Alert(AlertType.WARNING);
 						alert.setContentText("You do not have new messages!");
 						alert.showAndWait();
@@ -211,13 +277,35 @@ public class ChatLayout extends VBox {
 	}
 
 	public void receiveMessagePeer() {
-		chat.appendText("STIGLA VAM JE GLASOVNA PORUKA");
+		//ispisujemo u chatu da je primljena glasovna poruka
+		chat.appendText("STIGLA VAM JE GLASOVNA PORUKA\n" );
 	}
 	
 	public void getSound() {
+		System.out.println("OTVORENO");
+//		interface TargetDataLine supporting 8 audio formats, and buffers of at least 32 bytes
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian ->ne radi sa false
+//	    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian -> ovaj je do sada NAJBOLJI(true je poslednji)
+//	    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian(true je poslednji)NAJBOLJIIIIII!
+//	    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian -> ne radi sa false
+
 		
 		
-			
+//		 interface TargetDataLine supporting 8 audio formats, and buffers of at least 32 bytes
+//		    PCM_UNSIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//		    PCM_SIGNED unknown sample rate, 8 bit, mono, 1 bytes/frame, 
+//		    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, little-endian
+//		    PCM_SIGNED unknown sample rate, 16 bit, mono, 2 bytes/frame, big-endian
+//		    PCM_UNSIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//		    PCM_SIGNED unknown sample rate, 8 bit, stereo, 2 bytes/frame, 
+//		    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, little-endian(sa true je ok)
+//		    PCM_SIGNED unknown sample rate, 16 bit, stereo, 4 bytes/frame, big-endian ->ne radi sa false
+		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, true);
+		//pomocu ove fje slusamo zvuk sa racunara i kada korisnik klikne end (da je zavrsio glasovnu poruku), upisujemo zvuk u file record.wav	
 		DataLine.Info datainfo;
 		datainfo = new DataLine.Info(TargetDataLine.class,audioFormat);
 		if(!AudioSystem.isLineSupported(datainfo)) {
@@ -257,32 +345,16 @@ public class ChatLayout extends VBox {
 		
 	}
 	
-	public void hearSound() {
-		
-		 
-	}
+	
 	public void endCall() {
+		System.out.println("ZATVORENO");
 		targetLine.stop();
 		targetLine.close();
 		System.out.println("Snimljenooooo!");
 	}
 	
-	public String PeerCallScreen(String message) {
-		System.out.println("USAO DA MU SE PRIKAZE EKRAN!");
-		TextInputDialog text = new TextInputDialog();
-		text.setContentText(message);
-		Optional<String> result = text.showAndWait();
-		if (result.isPresent()){
-		    System.out.println("Poruka " + result.get());
-		}
-		return result.toString();
-		
-	}
-	public void respondToPeer(String message) {
-		String respond = PeerCallScreen(message);
-		chatInterface.respond(respond);
-		chatInterface.closePort();
-	}
+	
+	
 	public void setChatInterface(ChatInterface chatInterface) {
 		this.chatInterface = chatInterface;
 	}
@@ -315,18 +387,6 @@ public class ChatLayout extends VBox {
 		alert.setContentText("Contact is not active!");
 		alert.showAndWait();
 	}
-	public void sendMessagetoPeer() {
-		TextInputDialog text = new TextInputDialog();
-		text.setContentText("PROBA PEER");
-		Optional<String> result = text.showAndWait();
-		
-		
-		//ucitamo poruk usa Text input Dialoga
-		if (result.isPresent()){
-		    System.out.println("PORUKA KOJA SE SALJE JE:  " + result.get());
-		}
-		//saljemo poruku
-		chatInterface.sendPeerMessage(result.toString());
-	}
+	
 	
 }

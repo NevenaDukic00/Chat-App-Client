@@ -9,6 +9,6 @@ public interface ChatInterface {
 	public void endCall();
 	public void respond(String message);
 	public void closePort();
-	//videti u kom formatu
-	public void sendAudio();
+	
+	
 }

@@ -51,7 +51,7 @@ public class UserControllerPeer extends Thread{
 		
 
 		try {
-			
+			//prvo zvuk iz naseg record.wav file pretvaramo u niz bajtova
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream("record.wav"));
 				
@@ -64,7 +64,7 @@ public class UserControllerPeer extends Thread{
 			}
 			out.flush();
 			byte[] audioBytes = out.toByteArray();
-			System.out.println("Poslao zvuk!");
+			//prosledjujemo zvuk korisniku preko naravljenog niza bajtova
 			dataOutputStream.writeInt(audioBytes.length);
 			dataOutputStream.write(audioBytes);
 			dataOutputStream.flush();
@@ -124,30 +124,18 @@ public class UserControllerPeer extends Thread{
 	}
 	public void endConnection() {
 		try {
-			System.out.println("Izvrsilo se ovo!");
+			//saljemo da zelimo da zatvorimo konekciju
 			dataOutputStream.writeInt(2);
 			dataOutputStream.flush();
-			//closeConnection();
+			
 			flag = false;
-			//useInterface.changeFlag1();
-			//useInterface.closePeer();
-			//return;
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	public void endConnection1() {
-		try {
-			System.out.println("Izvrsilo se ovo!");
-			dataOutputStream.writeInt(3);
-			dataOutputStream.flush();
-			//System.out.println("ZAVRSIO JE!");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	@Override
 	public void run() {
 		
@@ -158,25 +146,19 @@ public class UserControllerPeer extends Thread{
 				switch (message) {
 				case 1:
 					try {
-						//primamo poruku
-						//String message1 = dataInputStream.readUTF();
-						//prikaz te poruke
-						//System.out.println("PRIMLJENA PORUKA JE: " + message1.toString());
-						
-						
 						int length = dataInputStream.readInt();
 						
-						System.out.println("Duzina je:" + length);
+						//primamo niz bajtova
 						byte []audio = new byte[length];
 						dataInputStream.read(audio, 0, length);
 						
-						System.out.println("Izasao");
 						
-						File outFile = new File("copy.wav");
-						if(Files.exists(Paths.get("copy.wav"), LinkOption.NOFOLLOW_LINKS )) {
+						//primljeni niz bajtova pretvaramo u hear.wav faje 
+						File outFile = new File("hear.wav");
+						if(Files.exists(Paths.get("hear.wav"), LinkOption.NOFOLLOW_LINKS )) {
 							outFile.delete();
 						}else {
-							outFile = new File("copy.wav");
+							outFile = new File("hear.wav");
 						}
 						
 						
@@ -193,7 +175,7 @@ public class UserControllerPeer extends Thread{
 						out.flush();
 						out.close();
 						in.close();
-						System.out.println(useInterface==null);
+						//zelimo da obavestimo korisnika da je primio glasovnu poruku
 						useInterface.receiveMessage();
 						
 					} catch (IOException e1) {
@@ -202,24 +184,15 @@ public class UserControllerPeer extends Thread{
 					}
 					break;
 				case 2:
-					System.out.println("PRIMIO JE 2");
-					
+					//primamo poruku za prekid konekcije
 					flag = false;
 					dataOutputStream.writeInt(4);
 					dataOutputStream.flush();
-					//useInterface.changeFlag();
-					closeConnection();
-					return;
-				case 3:
-					dataOutputStream.writeInt(4);
-					dataOutputStream.flush();
-					System.out.println("IZVRSAVA SE 3");
-					flag = false;
-					
+					//saljemo povratnu poruku da smo primili poruku za prekidom i zatvaramo Socket sa ove strane
 					closeConnection();
 					return;
 				case 4:
-					System.out.println("PRIMIO JE 4");
+					//prima povratnu poruku da je drugi korinisk primo obavesetenje o zatvaranju konekcije i onda gasimo ovaj Socket
 					closeConnection();
 					//useInterface.closePeer();
 					return;
