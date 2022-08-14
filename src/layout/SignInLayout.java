@@ -97,7 +97,7 @@ public class SignInLayout extends VBox{
 					alert.setHeaderText("Error!");
 					alert.setContentText("All the fields have to be filled!");
 					alert.showAndWait();
-				}
+				}else
 				//ukoliko su sva polja popunjena, prosledjujemo email i password
 				signInInterface.sign_in(email.getText(), password.getText());				
 			}
