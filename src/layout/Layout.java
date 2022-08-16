@@ -153,7 +153,7 @@ public class Layout {
 				userController.removeContact(user.getEmail());
 				
 				//ovde proveravamo da li je korisnik slao glasovne drugom korinsiku, jer ako jeste mora se zatvoriti pokrenuti Socketi
-				if((chatLayout.flag==true && userControllerPeer.flag==true) || (userControllerPeer!=null && userControllerPeer.flag==true)) {
+				if((chatLayout.flag==true && userControllerPeer!=null && userControllerPeer.flag==true) || (userControllerPeer!=null && userControllerPeer.flag==true)) {
 					
 					chatLayout.flag = false;
 					//saljemo poruku da zelimo da prekinemo konekciju
@@ -173,12 +173,13 @@ public class Layout {
 					//trazimo broj porta i ip korisnika kome zelimo da posaljemo glasovnu poruku od servera
 					userController.getPort(user.getContactEmail());
 					
-					//kada je uspesno uspostavljena veza, onda uzimamo zvuk
-					chatLayout.getSound();
+//					//kada je uspesno uspostavljena veza, onda uzimamo zvuk
+//					chatLayout.getSound();
 				}else if(chatLayout.flag==true && userControllerPeer.flag==false) {
 					chatLayout.showErrorPeer();
 				}else {
 					//ukoliko korinsik koji je primo glasnovunu zeli da uzvrati glasovnom, ovo se izvrsava
+					System.out.println("UZIMA U TRECE ELSE");
 					chatLayout.flag = true;
 					chatLayout.getSound();
 				}
@@ -378,7 +379,9 @@ public class Layout {
 					//pravimo socket za komunikaciju preko peera, na portu i ip adresi na kojima se nalazi korisnik sa kojim komuniciramo
 					userControllerPeer = new UserControllerPeer(new Socket(ip, port));
 					userControllerPeer.start();
-					
+					//kada je uspesno uspostavljena veza, onda uzimamo zvuk
+					System.out.println("OVDE UZIMA ZVUK KADA GA JE KREIRAO");
+					chatLayout.getSound();
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
 						
 						@Override
