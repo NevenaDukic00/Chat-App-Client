@@ -325,13 +325,14 @@ public class Layout {
 			}
 
 			@Override
-			public void getMessages(ArrayList<String> messages) {
+			public void getMessages(ArrayList<String> messages,String username) {
 				Platform.runLater(new Runnable() {
 					
 					@Override
 					public void run() {
 						//saljemo poruke u chatLayout
-						chatLayout.setMessages(messages,user.getEmail());
+					
+						chatLayout.setMessages(messages,user.getEmail(),username);
 						
 					}
 				});

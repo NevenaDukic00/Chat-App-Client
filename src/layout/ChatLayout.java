@@ -289,25 +289,26 @@ public class ChatLayout extends VBox {
 	public void setChatInterface(ChatInterface chatInterface) {
 		this.chatInterface = chatInterface;
 	}
-	public void setMessages(ArrayList<String> messages,String email) {
+	public void setMessages(ArrayList<String> messages,String email,String username) {
 		chat.clear();
 		message.clear();
 		
 		//citamo poruke, posto su u odredjenom formatu, zeljene delove dobijamo preko substring
 		for (int i = 0; i < messages.size(); i++) {
 			int position = messages.get(i).indexOf(";");
-			int position1 = messages.get(i).indexOf("#") +1;
+			
 			String user = messages.get(i).substring(0, position);
 			
 			if (user.equals(email)) {
 				chat.appendText("ME: ");
 			}else {
-				String user1 = messages.get(i).substring(position1);
-				chat.appendText(user1.toUpperCase() + ": ");
+				
+				chat.appendText(username.toUpperCase() + ": ");
 			}
 			
 			//poruku dodajemo u chat
-			chat.appendText(messages.get(i).substring(position+1,position1-1));
+			
+			chat.appendText(messages.get(i).substring(position+1));
 			chat.appendText("\n");
 			
 		}

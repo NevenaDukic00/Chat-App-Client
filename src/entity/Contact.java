@@ -3,6 +3,7 @@ package entity;
 public class Contact {
 
 	private String email;
+
 	
 	
 	public Contact(String email) {

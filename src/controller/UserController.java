@@ -232,23 +232,29 @@ public class UserController extends Thread {
 					
 				case 3:
 					//primamo listu poruka
+					String username = inputStream.readUTF();
 					ArrayList<String> messages = new ArrayList<>();
+					int status4 = inputStream.readInt();
+
 					//citamo poruke
-					while(true) {
-						String text = inputStream.readUTF();
-						if (text.equals("end of messages")) {
-							break;
+					if(status4==1) {
+						System.out.println("USAO DA CITA PORUKE!");
+						while(true) {
+							String text = inputStream.readUTF();
+							if (text.equals("end of messages")) {
+								System.out.println("ODMAH USAO OVDE");
+								break;
+							}
+							messages.add(text);
+							
 						}
-						messages.add(text);
-						
+						//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
+						userControllerInterface.getMessages(messages,username);
 					}
-					
-					//prosledjujemo poruke ka Chatlayoutu kako bismo ih prikazali
-					userControllerInterface.getMessages(messages);
-					
 					break;
 				case 4:
 					//primamo username korisnika i poruku od servera
+					System.out.println("PRIMAMO PORUKU");
 					String user = inputStream.readUTF();
 					String text = inputStream.readUTF();
 					
