@@ -37,7 +37,7 @@ public class UserControllerServerPeer extends Thread{
 		while (true) {
 			try {
 				Socket socket = serverSocket.accept();
-				
+				System.out.println("SERVER PRIMIO");
 				UserControllerPeer userPeer = new UserControllerPeer(socket);
 				userControllerServerPeerInterface.initUser(userPeer);
 				

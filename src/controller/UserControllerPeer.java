@@ -146,6 +146,7 @@ public class UserControllerPeer extends Thread{
 				switch (message) {
 				case 1:
 					try {
+						System.out.println("STIGAO NAM JE ZVUK");
 						int length = dataInputStream.readInt();
 						
 						//primamo niz bajtova
@@ -176,6 +177,7 @@ public class UserControllerPeer extends Thread{
 						out.close();
 						in.close();
 						//zelimo da obavestimo korisnika da je primio glasovnu poruku
+						System.out.println("SALJEMO GLAS!");
 						useInterface.receiveMessage();
 						
 					} catch (IOException e1) {

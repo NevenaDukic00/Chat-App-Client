@@ -47,7 +47,7 @@ public class UserController extends Thread {
 	}
 	public UserController() {
 		try {
-			socket = new Socket("192.168.100.41", 8888);
+			socket = new Socket("localhost", 8888);
 			//System.out.println("IP je: " + InetAddress.getLocalHost());
 			initStreams();
 			start();
@@ -105,12 +105,27 @@ public class UserController extends Thread {
 			outputStream.writeUTF(password);
 			//saljemo i ip adresu racaunara serveru
 			outputStream.writeUTF(InetAddress.getLocalHost().toString());
+			//saljemo port racunara serveru
+			outputStream.writeInt(findFreePort());
 			outputStream.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+	}
+	private static int findFreePort() {
+	    int port = 0;
+	    // For ServerSocket port number 0 means that the port number is automatically allocated.
+	    try (ServerSocket socket = new ServerSocket(0)) {
+	        // Disable timeout and reuse address after closing the socket.
+	        socket.setReuseAddress(true);
+	        port = socket.getLocalPort();
+	    } catch (IOException ignored) {}
+	    if (port > 0) {
+	        return port;
+	    }
+	    throw new RuntimeException("Could not find a free port");
 	}
 	public void checkContact(String email) {
 		
@@ -219,6 +234,7 @@ public class UserController extends Thread {
 					if(status1==1) {
 						//ako je uspesno uzima broj porta
 						int port = inputStream.readInt();
+						System.out.println("My Port je: " + port);
 						//cim se se ulogovali,kreiramo UserControllerSeverPeer kao ServerSocket koji ceka poziv drugog socketa
 						userControllerInterface.startPeerServer(port);
 					}
@@ -282,9 +298,12 @@ public class UserController extends Thread {
 					//ukoliko je korisnik aktivan i u tom chatu:
 					if(status3==1) {
 						//uzimamo port
+						
 						int portNum = inputStream.readInt();
+						
 						//uzimamo ip
 						String ip = inputStream.readUTF();
+						System.out.println("Port je: " + portNum + " : " + ip);
 						//saljemo port i ip kako bismo pokrenuli vezu preko socketa ka trazenom korisniku
 						userControllerInterface.sendPort(portNum,ip);
 						

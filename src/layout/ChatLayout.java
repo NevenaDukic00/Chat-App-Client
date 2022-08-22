@@ -82,8 +82,8 @@ public class ChatLayout extends VBox {
 		gridPane = new GridPane();
 		scrollBar = new ScrollBar();
 		back = new Button("BACK");
-		call = new Button("CALL");
-		endcall = new Button("END CALL");
+		call = new Button("VOICE MESSAGE");
+		endcall = new Button("END VOICE MESSAGE");
 		hearMessage = new Button("HEAR MESSAGE");
 	}
 	
@@ -102,10 +102,11 @@ public class ChatLayout extends VBox {
 		
 		HBox hBox1 = new HBox();
 		hBox1.setSpacing(30);
-		hBox1.getChildren().addAll(call,endcall,hearMessage);
+		hBox1.getChildren().addAll(call,endcall);
 		
 		gridPane.add(hBox, 0, 1);
 		gridPane.add(hBox1, 0, 2);
+		gridPane.add(hearMessage, 0, 3);
 		getChildren().add(gridPane);
 		
 	}

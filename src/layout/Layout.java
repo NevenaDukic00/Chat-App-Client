@@ -75,7 +75,7 @@ public class Layout {
 				
 				if(userController!=null) {
 					//proveravamo da li je i dalje pokrenuta veza sa drugim koriniskom (p2p), ukoliko nije onda je prvo prekidamo
-					if(chatLayout.flag==true && userControllerPeer.flag==true) {
+					if(chatLayout.flag==true && (userControllerPeer!=null &&userControllerPeer.flag==true)) {
 						userControllerPeer.endConnection();
 					}else if(userControllerPeer!=null && userControllerPeer.flag==true) {
 						userControllerPeer.endConnection();
@@ -180,7 +180,6 @@ public class Layout {
 				}else {
 					//ukoliko korinsik koji je primo glasnovunu zeli da uzvrati glasovnom, ovo se izvrsava
 					System.out.println("UZIMA U TRECE ELSE");
-					chatLayout.flag = true;
 					chatLayout.getSound();
 				}
 				
@@ -380,7 +379,7 @@ public class Layout {
 					userControllerPeer = new UserControllerPeer(new Socket(ip, port));
 					userControllerPeer.start();
 					//kada je uspesno uspostavljena veza, onda uzimamo zvuk
-					System.out.println("OVDE UZIMA ZVUK KADA GA JE KREIRAO");
+					System.out.println("KREIRANO PREKO POZIVA");
 					chatLayout.getSound();
 					userControllerPeer.setUseInterface(new UserControllerPeerInterface() {
 						
