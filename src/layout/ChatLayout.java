@@ -246,7 +246,9 @@ public class ChatLayout extends VBox {
 		
 		try {
 			targetLine = (TargetDataLine)AudioSystem.getLine(datainfo);
+			
 			targetLine.open();
+			
 			targetLine.start();
 			
 			Thread audioRecorderThread = new Thread()
