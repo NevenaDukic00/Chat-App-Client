@@ -247,12 +247,12 @@ public class ChatLayout extends VBox {
 		try {
 			targetLine = (TargetDataLine)AudioSystem.getLine(datainfo);
 			targetLine.open();
-			
 			targetLine.start();
 			
 			Thread audioRecorderThread = new Thread()
 			{
 				@Override public void run() {
+					
 					AudioInputStream recordStream = new AudioInputStream(targetLine);
 					File outFile = new File("record.wav");
 					try {
