@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -29,9 +31,14 @@ import javafx.application.Platform;
 
 public class UserControllerPeer extends Thread{
 	
+	
 	private DataOutputStream dataOutputStream;
 	private DataInputStream dataInputStream;
 	private Socket socket;
+	
+	
+		
+	
 	
 	//ovde je flag identifikat da smo pokrenuli socket ka drugom korisniku
 	public boolean flag = false;
@@ -53,23 +60,31 @@ public class UserControllerPeer extends Thread{
 		try {
 			//prvo zvuk iz naseg record.wav file pretvaramo u niz bajtova
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			BufferedInputStream in = new BufferedInputStream(new FileInputStream("record.wav"));
-				
-			dataOutputStream.writeInt(1);
+			BufferedInputStream in;
+			in = new BufferedInputStream(new FileInputStream("record.wav"));
 			int read;
+			
 			byte[] buff = new byte[1024];
 			while ((read = in.read(buff)) > 0)
 			{
 			    out.write(buff, 0, read);
 			}
 			out.flush();
+			in.close();
+			out.close();
 			byte[] audioBytes = out.toByteArray();
+			
+			
 			//prosledjujemo zvuk korisniku preko naravljenog niza bajtova
+			System.out.println(audioBytes);
+			
+			dataOutputStream.writeInt(1);
+			System.out.println("Posalo jeovoliko : " + audioBytes.length);
 			dataOutputStream.writeInt(audioBytes.length);
 			dataOutputStream.write(audioBytes);
 			dataOutputStream.flush();
-			in.close();
-			out.close();
+			
+			
 			
 			
 		} catch (IOException e) {
@@ -80,6 +95,7 @@ public class UserControllerPeer extends Thread{
 	}
 	private void initStreams() {
 		try {
+			
 			dataInputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 			dataOutputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 		} catch (IOException e) {
@@ -100,19 +116,22 @@ public class UserControllerPeer extends Thread{
 	
 	
 	public void sendMessage(String message) {
-		try {
-			//saljmo poruku
-			dataOutputStream.writeUTF(message);
-			dataOutputStream.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			//saljmo poruku
+//			
+//			dataOutputStream.writeUTF(message);
+//			dataOutputStream.flush();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 	}
 	public void closeConnection() {
 		try {
 			System.out.println("ZATVARA IH");
+			
+			
 			dataInputStream.close();
 			dataOutputStream.close();
 			socket.close();
@@ -142,17 +161,22 @@ public class UserControllerPeer extends Thread{
 		while (true) {
 			try {
 				int message = dataInputStream.readInt();
+				
 				System.out.println("Message je: " + message);
 				switch (message) {
 				case 1:
 					try {
 						System.out.println("STIGAO NAM JE ZVUK");
+						
 						int length = dataInputStream.readInt();
 						
 						//primamo niz bajtova
 						byte []audio = new byte[length];
-						dataInputStream.read(audio, 0, length);
 						
+						
+						System.out.println("Primio je ovoliko: " + length);
+						dataInputStream.read(audio, 0, length);
+						System.out.println(audio);
 						
 						//primljeni niz bajtova pretvaramo u hear.wav faje 
 						File outFile = new File("hear.wav");
@@ -161,21 +185,24 @@ public class UserControllerPeer extends Thread{
 						}else {
 							outFile = new File("hear.wav");
 						}
-						
-						
-						
+//						
+//						
+//						
 						ByteArrayInputStream in = new ByteArrayInputStream(audio);
 						BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
-						
-						
+//						
+//						
 						while (in.read(audio)>0)
 						{
 						    out.write(audio,0,audio.length);
-						    
+//						    
 						}
 						out.flush();
 						out.close();
 						in.close();
+						
+					
+					
 						//zelimo da obavestimo korisnika da je primio glasovnu poruku
 						System.out.println("SALJEMO GLAS!");
 						useInterface.receiveMessage();
@@ -188,6 +215,7 @@ public class UserControllerPeer extends Thread{
 				case 2:
 					//primamo poruku za prekid konekcije
 					flag = false;
+					
 					dataOutputStream.writeInt(4);
 					dataOutputStream.flush();
 					//saljemo povratnu poruku da smo primili poruku za prekidom i zatvaramo Socket sa ove strane
