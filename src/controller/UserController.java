@@ -116,9 +116,9 @@ public class UserController extends Thread {
 	}
 	private static int findFreePort() {
 	    int port = 0;
-	    // For ServerSocket port number 0 means that the port number is automatically allocated.
+	   //pronalazimo slobodan port
 	    try (ServerSocket socket = new ServerSocket(0)) {
-	        // Disable timeout and reuse address after closing the socket.
+	        
 	        socket.setReuseAddress(true);
 	        port = socket.getLocalPort();
 	    } catch (IOException ignored) {}

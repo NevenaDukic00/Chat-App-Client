@@ -75,7 +75,7 @@ public class UserControllerPeer extends Thread{
 			byte[] audioBytes = out.toByteArray();
 			
 			
-			//prosledjujemo zvuk korisniku preko naravljenog niza bajtova
+			//prosledjujemo zvuk korisniku preko napravljenog niza bajtova
 			System.out.println(audioBytes);
 			
 			dataOutputStream.writeInt(1);
@@ -178,7 +178,7 @@ public class UserControllerPeer extends Thread{
 						dataInputStream.read(audio, 0, length);
 						System.out.println(audio);
 						
-						//primljeni niz bajtova pretvaramo u hear.wav faje 
+						//primljeni niz bajtova pretvaramo u hear.wav fajl 
 						File outFile = new File("hear.wav");
 						if(Files.exists(Paths.get("hear.wav"), LinkOption.NOFOLLOW_LINKS )) {
 							outFile.delete();
