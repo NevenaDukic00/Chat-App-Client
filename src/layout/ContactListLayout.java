@@ -67,11 +67,25 @@ public class ContactListLayout extends VBox {
 		if (result.isPresent()){
 			//citamo email
 			contactEmail = result.get();
-			//saljemo da se proveri email
-			contactListInterface.checkContact(result.get());
+			if(checkEmailContact(contactEmail)!=1) {
+				//saljemo da se proveri email
+				contactListInterface.checkContact(result.get());
+			}
+			
 		   // chatInterface.sendEmailForChat(result.get());
 		}
 		
+	}
+	public int checkEmailContact(String email) {
+		for (Contact contact : contacts) {
+			if(contact.getEmail().equals(email)) {
+				Alert alert = new Alert(AlertType.WARNING);
+				alert.setContentText("You already have this user in your contact list!");
+				alert.showAndWait();
+				return 1;
+			}
+		}
+		return 0; 
 	}
 	public void ErrorAdingContact() {
 		//ne mozemo uneti sami sebe kao kontakta

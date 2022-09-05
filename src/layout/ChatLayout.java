@@ -232,7 +232,7 @@ public class ChatLayout extends VBox {
 
 	public void receiveMessagePeer() {
 		//ispisujemo u chatu da je primljena glasovna poruka
-		chat.appendText("STIGLA VAM JE GLASOVNA PORUKA\n" );
+		chat.appendText("YOU RECEIVED A VOICE MESSAGE\n" );
 	}
 	
 	public void getSound() {
