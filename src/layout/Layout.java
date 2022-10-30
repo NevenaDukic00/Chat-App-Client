@@ -45,7 +45,7 @@ public class Layout {
 	
 	
 	private void init() {
-		initComponents();
+		initComponents();	
 		initStageAction();
 		userController = new UserController();
 		initAction();

@@ -185,13 +185,10 @@ public class UserControllerPeer extends Thread{
 						}else {
 							outFile = new File("hear.wav");
 						}
-//						
-//						
-//						
+						
 						ByteArrayInputStream in = new ByteArrayInputStream(audio);
 						BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
-//						
-//						
+					
 						while (in.read(audio)>0)
 						{
 						    out.write(audio,0,audio.length);
